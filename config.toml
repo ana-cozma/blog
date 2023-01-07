@@ -1,7 +1,7 @@
-baseURL = 'https://ana-cozma.github.io/blog'
-languageCode = 'en-us'
-title = 'Ana Cozma's Blog'
-theme = 'm10c'
+baseURL = "https://ana-cozma.github.io/blog"
+languageCode = "en-us"
+title = 'Ana Cozma's Blog"
+theme = "m10c"
 
 [params]
   author = "Ana Cozma"
