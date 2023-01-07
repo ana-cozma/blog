@@ -1,6 +1,6 @@
 baseURL = "https://ana-cozma.github.io/blog"
 languageCode = "en-us"
-title = 'Ana Cozma's Blog"
+title = "Ana Cozma's Blog"
 theme = "m10c"
 
 [params]
