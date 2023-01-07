@@ -1,11 +1,11 @@
 baseURL = 'https://ana-cozma.github.io/blog'
 languageCode = 'en-us'
-title = 'Tech and Tea: Navigating the World of Technology'
+title = 'Ana Cozma's Blog'
 theme = 'm10c'
 
 [params]
   author = "Ana Cozma"
-  description = "A blog about navigating the world of technology."
+  description = "Tech and Tea: Navigating the World of Technology"
 
   [[params.social]]
     icon = "github"
