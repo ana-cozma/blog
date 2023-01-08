@@ -2,6 +2,7 @@
 title: "K8s - Fix Helm release failing with an upgrade still in progress"
 date: 2022-05-30T17:49:48+01:00
 draft: false
+tags: ["kubernetes", "helm"]
 ---
 This article applies to: **Helm v3.8.0**
 

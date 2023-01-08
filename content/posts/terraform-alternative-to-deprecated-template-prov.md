@@ -2,6 +2,7 @@
 title: "Terraform: Alternative to the Template provider on Apple M1 MBP"
 date: 2022-08-05T17:52:07+01:00
 draft: false
+tags: ["terraform", "mac", "m1"]
 ---
 We ran into an issue while applying our Terraform infrastructure on a M1 Mac where we were making use of the [Terraform Provider Template](https://github.com/hashicorp/terraform-provider-template).
 
