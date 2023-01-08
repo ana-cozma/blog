@@ -1,0 +1,82 @@
+<!doctype html><html lang=en-us><head><title>Terraform - Handling the deletion of a non-empty AWS S3 Bucket // Ana Cozma's Tech Blog</title><link rel="shortcut icon" href=/favicon.ico><meta charset=utf-8><meta name=generator content="Hugo 0.109.0"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Ana Cozma"><meta name=description content><link rel=stylesheet href=/blog/css/main.min.3c3c186cd62e563ad6e2f00a89dbee656ab912d1d46f856b5605dd0232521e2a.css><meta name=twitter:card content="summary"><meta name=twitter:title content="Terraform - Handling the deletion of a non-empty AWS S3 Bucket"><meta name=twitter:description content="This article applies to Terraform v1.1.4
+When using Terraform to manage your infrastructure you will end up in the situation when you want to remove some resources.
+You can do this in several ways, but most of the time you can also just remove the Terraform configuration by commenting it out the code, or removing the calling of the module, run terraform apply and it will get rid of the resources."><meta property="og:title" content="Terraform - Handling the deletion of a non-empty AWS S3 Bucket"><meta property="og:description" content="This article applies to Terraform v1.1.4
+When using Terraform to manage your infrastructure you will end up in the situation when you want to remove some resources.
+You can do this in several ways, but most of the time you can also just remove the Terraform configuration by commenting it out the code, or removing the calling of the module, run terraform apply and it will get rid of the resources."><meta property="og:type" content="article"><meta property="og:url" content="https://ana-cozma.github.io/blog/posts/terraform-deletion-of-non-empty-s3-bucket/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2022-05-25T12:39:03+01:00"><meta property="article:modified_time" content="2022-05-25T12:39:03+01:00"></head><body><header class=app-header><a href=https://ana-cozma.github.io/blog><img class=app-header-avatar src=/blog/avatar.jpg alt="Ana Cozma"></a>
+<span class=app-header-title>Ana Cozma's Tech Blog</span><nav class=app-header-menu><a class=app-header-menu-item href=/blog/>Home</a>
+|
+<a class=app-header-menu-item href=/blog/about/>About</a>
+|
+<a class=app-header-menu-item href=/blog/tags/>Tags</a></nav><p>Tech and Tea - Navigating the World of Technology</p><div class=app-header-social><a href=https://github.com/ana-cozma target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github"><title>GitHub</title><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a><a href=https://twitter.com/the_cozma target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter"><title>Twitter</title><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg></a><a href=https://www.linkedin.com/in/ana-cozma/ target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin"><title>LinkedIn</title><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></header><main class=app-container><article class=post><header class=post-header><h1 class=post-title>Terraform - Handling the deletion of a non-empty AWS S3 Bucket</h1><div class=post-meta><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar"><title>calendar</title><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>May 25, 2022</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock"><title>clock</title><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 min read</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag"><title>tag</title><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a class=tag href=https://ana-cozma.github.io/blog/tags/terraform/>terraform</a>
+<a class=tag href=https://ana-cozma.github.io/blog/tags/aws/>aws</a>
+<a class=tag href=https://ana-cozma.github.io/blog/tags/s3/>s3</a>
+<a class=tag href=https://ana-cozma.github.io/blog/tags/iac/>iac</a></div></div></header><div class=post-content><p>This article applies to <strong>Terraform v1.1.4</strong></p><p>When using Terraform to manage your infrastructure you will end up in the situation when you want to remove some resources.</p><p>You can do this in several ways, but most of the time you can also just remove the Terraform configuration by commenting it out the code, or removing the calling of the module, run <code>terraform apply</code> and it will get rid of the resources.</p><p><strong>Infrastructure Setup</strong></p><p>Assuming an infra with the following setup:</p><pre tabindex=0><code>- envs
+|__ staging
+|_____ main.tf
+...
+|__ prod
+|_____ main.tf
+...
+- modules
+|__ awsresources
+|_____ s3.tf
+...
+</code></pre><p>Where <code>main.tf</code> file calls the module responsible for creating the AWS resources we need:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#66d9ef>module</span> <span style=color:#e6db74>&#34;aws&#34;</span> {
+</span></span><span style=display:flex><span>  source       <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;../../modules/awsresources&#34;</span>
+</span></span><span style=display:flex><span>  bucket_name  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;my-bucket&#34;</span>
+</span></span><span style=display:flex><span>  fqdn         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;my-bucket&#34;</span>
+</span></span><span style=display:flex><span>  deployer_arn <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;***&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>  ...
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>And a simple S3 bucket configured as follows:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_s3_bucket&#34; &#34;name&#34;</span> {
+</span></span><span style=display:flex><span>  bucket <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>bucket_name</span>
+</span></span><span style=display:flex><span>  acl    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;private&#34;</span>
+</span></span><span style=display:flex><span>  policy <span style=color:#f92672>=</span> <span style=color:#66d9ef>data</span>.<span style=color:#66d9ef>aws_team_policy_document</span>.<span style=color:#66d9ef>bucket_policy</span>.<span style=color:#66d9ef>json</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>website</span> {
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  force_destroy <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>tags</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>We want to destroy these resources, specifically the S3 bucket itself.</p><p><strong>Removal of resources</strong></p><p>If you run <code>terraform plan</code> it will mark it nicely as to be destroyed:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console><span style=display:flex><span># module.module_name.aws_s3_bucket.name will be destroyed
+</span></span><span style=display:flex><span>  # (because aws_s3_bucket.static_site is not in configuration)
+</span></span><span style=display:flex><span>  - resource &#34;aws_s3_bucket&#34; &#34;static_site&#34; {
+</span></span><span style=display:flex><span>      - acl                         = &#34;private&#34; -&gt; null
+</span></span><span style=display:flex><span>      - arn                         = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - bucket                      = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - bucket_domain_name          = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - bucket_regional_domain_name = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - force_destroy               = false -&gt; null
+</span></span><span style=display:flex><span>      - hosted_zone_id              = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - id                          = &#34;***&#34; -&gt; null
+</span></span><span style=display:flex><span>      - policy                      = jsonencode(
+</span></span><span style=display:flex><span>...
+</span></span></code></pre></div><p>But running the <code>terraform apply</code> on the same plan and on a non-empty S3 bucket will result in the following ERROR:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console><span style=display:flex><span>╷
+</span></span><span style=display:flex><span>│ Error: error deleting S3 Bucket (***): BucketNotEmpty: The bucket you tried to delete is not empty
+</span></span><span style=display:flex><span>│ 	status code: 409, request id: ***, host id: ***
+</span></span><span style=display:flex><span>│
+</span></span></code></pre></div><p><strong>Let&rsquo;s check the S3 bucket configuration again</strong></p><p>Checking the configuration, we see that we set the flag <code>force_destroy = false</code> in our case. This is actually a very good check in place to have because it protects you from accidental data loss.</p><p>From the Terraform aws provider <a href=https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#force_destroy>documentation</a>:</p><blockquote><p>force_destroy - (Optional, Default:false) A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable.</p></blockquote><p>In our case we have to set <code>force_destroy = true</code> to allow the bucket to be deleted.</p><p><strong>Pay attention: You must apply this change so state is updated first, before running the destroy command.</strong></p><p>So let&rsquo;s change the value to <code>true</code> and apply it on our resource:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console><span style=display:flex><span> # module.suspended_workspace.aws_s3_bucket.static_site will be updated in-place
+</span></span><span style=display:flex><span>  ~ resource &#34;aws_s3_bucket&#34; &#34;name&#34; {
+</span></span><span style=display:flex><span>      ~ force_destroy               = false -&gt; true
+</span></span><span style=display:flex><span>        id                          = &#34;***&#34;
+</span></span><span style=display:flex><span>        tags                        = {
+</span></span><span style=display:flex><span>           ...
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        # (12 unchanged attributes hidden)
+</span></span><span style=display:flex><span>        # (2 unchanged blocks hidden)
+</span></span><span style=display:flex><span>    }
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-console data-lang=console><span style=display:flex><span>Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+</span></span></code></pre></div><p>After the setting has been applied successfully, we can start deleting the resources by:</p><ul><li>removing the module from being called, or</li><li>commenting out the resource</li></ul><p>and run a <code>terraform apply</code> again to confirm the destruction of the resources.</p><p>Alternatively, you can also run:
+<code>terraform plan -destroy -target=aws_s3_bucket.name</code></p><p>This time the S3 bucket is deleted successfully.</p><p><strong>What to do if you noticed the error after some resources have already been destroyed?</strong></p><p>So let&rsquo;s say you already started to apply the destruction of the resources and some are successfully destroyed and some are not, including our S3 bucket. What can you do at this point?</p><p><em>Option 1</em>
+You can:
+Use the <code>-target=resource</code> like below to target the S3 bucket changes only and work only with that resource:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span>terraform plan -target<span style=color:#f92672>=</span><span style=color:#66d9ef>module</span>.<span style=color:#66d9ef>mymodule</span>.<span style=color:#66d9ef>aws_s3_bucket</span>.<span style=color:#66d9ef>name</span>
+</span></span><span style=display:flex><span>terraform apply -target<span style=color:#f92672>=</span><span style=color:#66d9ef>module</span>.<span style=color:#66d9ef>mymodule</span>.<span style=color:#66d9ef>aws_s3_bucket</span>.<span style=color:#66d9ef>name</span>
+</span></span></code></pre></div><p>or</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-hcl data-lang=hcl><span style=display:flex><span>terraform plan -target<span style=color:#f92672>=</span><span style=color:#66d9ef>aws_s3_bucket</span>.<span style=color:#66d9ef>name</span>
+</span></span><span style=display:flex><span>terraform apply -target<span style=color:#f92672>=</span><span style=color:#66d9ef>aws_s3_bucket</span>.<span style=color:#66d9ef>name</span>
+</span></span></code></pre></div><p>As a note, you can add multiple resources in any of the commands if you have multiple S3 buckets that need to be deleted.</p><p>OR</p><p><em>Option 2</em>
+You can:</p><ol><li>Re-apply the configuration essentially re-creating the missing resources</li><li>Setting the <code>force_destroy</code> flag</li><li>Run <code>terraform apply</code> again to destroy the resources</li></ol><p>This of course depends on the level of complexity of your infrastructure, in some cases rendering it difficult to do.</p><p><em>And there you go. Hope you find it useful!</em></p></div><div class=post-footer></div></article></main></body></html>
