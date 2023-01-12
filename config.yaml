@@ -1,6 +1,6 @@
 baseURL: 'https://ana-cozma.github.io/blog'
 languageCode: en-us
-title: Ana Cozma's Tech Blog
+title: Cloudy Caffeine with Ana
 theme: m10c
 enableRobotsTXT: true
 paginate: 20
@@ -17,14 +17,14 @@ menu:
       weight: 3
 params:
   author: Ana Cozma
-  description: Tech and Tea - Navigating the World of Technology
+  description: "A blog about tech and coffee"
   menu_item_separator: ' | '
   style:
     darkestColor: '#242930'
     darkColor: '#353b43'
     lightColor: '#afbac4'
     lightestColor: '#ffffff'
-    #primaryColor: '#8565ad'
+    # primaryColor: '#8565ad'
   shareButtons:
     size: small
     networks:

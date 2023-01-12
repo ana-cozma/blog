@@ -1,12 +1,12 @@
 ---
 title: "Book Review: Observability Engineering: Achieving Production Excellence"
-date: 2023-01-10T21:39:06+01:00
+date: 2023-01-11T19:33:00+01:00
 draft: true
-tags: ["tea"]
+tags: ["book-review", "observability", "coffee-reads"]
 ---
-![Image description](/content/tea/observability.jpeg)
+![Observability Engineering](https://github.com/ana-cozma/blog/blob/main/content/coffee/images/observability.jpeg)
 
-In this _tea_ session I will review one of the books that got me excited last year.
+For the first book review in what I will call my *coffee reads* section of the blog I will be reviewing the book [Observability Engineering: Achieving Production Excellence](https://www.oreilly.com/library/view/observability-engineering/9781492050046/).
 
 ## Observability Engineering: Achieving Production Excellence
 
@@ -43,12 +43,14 @@ The books also does not go into implementation details on how observability can 
 
 Some sections had a lot of detailed code snippets which were harded to read. I skimmed over them to get the gist while in other sections I would have liked to see more code snippets to help me understand the concepts better.
 
-The case study section was too high level for my linking. I would've loved to read more about the _challenges_ they faced and _how_ they addressed them, rather then a mention about team collaboration as being the success metric in adopting observability. Go into details about the tools they used and how they used them. What their lessons learned were.
+The case study section was too high level for my liking. I would've loved to read more about the _challenges_ they faced and _how_ they addressed them, rather then a mention about team collaboration as being the success metric in adopting observability. Go into details about the tools they used and how they used them. What their lessons learned were.
 
-I think the intent was to make a book that takes an overlook at the observability space with concepts and tooling agnostic of Honeycomb tooling, but it ended up being too high level and not going into enough details. I think a book on Honeycomb specifically can also be a good idea.
-
-So because of this the book felt unbalanced in my opinion.
+So because of this the book felt a bit unbalanced at times in my opinion.
 
 ## Summary
 
-To summarize the book I would say it had a lot of potential, but it fell short in some areas. Nevertheless, it was a good read and I would recommend it to anyone interested in learning more about observability. 
+To summarize, the book, I would say, had a lot of good key takeaways to set you on the path to adopting observability practices either in your day to day work or team level or maybe even organizational level, but it did fell short in some areas. Nevertheless, it was a good read and I would recommend it to anyone interested in learning more about observability. 
+
+If you've read the book let me know what you thought about it in the comments below. Or if you have any recommendations for other books on the topic of observability I would love to hear them.
+
+Enjoy your coffee!
