@@ -1,5 +1,5 @@
 ---
-title: "K8s - Fix Helm release failing with an upgrade still in progress"
+title: "K8s: Fix Helm release failing with an upgrade still in progress"
 date: 2022-05-30T17:49:48+01:00
 draft: false
 tags: ["kubernetes", "helm"]
@@ -14,7 +14,7 @@ This could happen if:
 - you run the upgrade command from the cli and accidentally (or not) interrupt it or
 - you have two deploys running at the same time (maybe in Github Actions, for example)
 
-Basically any interruption that occurred during your install/upgrade process **could** lead you to a state where you cannot install another release anymore.
+Basically, any interruption that occurred during your install/upgrade process **could** lead you to a state where you cannot install another release anymore.
 
 In the release logs the failing upgrade will show an error similar to the following:
 

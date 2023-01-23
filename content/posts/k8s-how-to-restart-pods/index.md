@@ -1,5 +1,5 @@
 ---
-title: "K8s - How to restart Kubernetes Pods"
+title: "K8s: How to restart Kubernetes Pods"
 date: 2022-05-25T12:35:04+01:00
 draft: false
 tags: ["kubernetes"]
