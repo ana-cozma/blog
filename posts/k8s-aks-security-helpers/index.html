@@ -1,0 +1,874 @@
+<!doctype html><html lang=en-us><head><title>Kube-bench and Popeye: A Power Duo for AKS Security Compliance // Cloudy Caffeine with Ana</title><link rel="shortcut icon" href=/favicon.ico><meta charset=utf-8><meta name=generator content="Hugo 0.110.0"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Ana Cozma"><meta name=description content><link rel=stylesheet href=/blog/css/main.min.3c3c186cd62e563ad6e2f00a89dbee656ab912d1d46f856b5605dd0232521e2a.css><script async src="https://www.googletagmanager.com/gtag/js?id=G-PD4F67ZWJD"></script>
+<script>var doNotTrack=!1;if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-PD4F67ZWJD",{anonymize_ip:!1})}</script><meta name=twitter:card content="summary"><meta name=twitter:title content="Kube-bench and Popeye: A Power Duo for AKS Security Compliance"><meta name=twitter:description content="In today&rsquo;s world, security is a top priority for any organization or at least it should be. With the rise of cloud computing, the number of security threats has increased exponentially.
+So how do we keep up? Where do we start?
+Microsoft has created a set of security benchmarks to give users a starting point for setting up their security configurations. The Microsoft cloud security benchmark (MCSB) is the successor of Azure Security Benchmark (ASB), which was rebranded in October 2022 (Currently in public preview)."><meta property="og:title" content="Kube-bench and Popeye: A Power Duo for AKS Security Compliance"><meta property="og:description" content="In today&rsquo;s world, security is a top priority for any organization or at least it should be. With the rise of cloud computing, the number of security threats has increased exponentially.
+So how do we keep up? Where do we start?
+Microsoft has created a set of security benchmarks to give users a starting point for setting up their security configurations. The Microsoft cloud security benchmark (MCSB) is the successor of Azure Security Benchmark (ASB), which was rebranded in October 2022 (Currently in public preview)."><meta property="og:type" content="article"><meta property="og:url" content="https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2023-01-23T19:10:37+01:00"><meta property="article:modified_time" content="2023-01-23T19:10:37+01:00"></head><body><header class=app-header><a href=https://ana-cozma.github.io/blog><img class=app-header-avatar src=/blog/avatar.jpg alt="Ana Cozma"></a>
+<span class=app-header-title>Cloudy Caffeine with Ana</span><nav class=app-header-menu><a class=app-header-menu-item href=/blog/>Home</a>
+|
+<a class=app-header-menu-item href=/blog/tags/>Tags</a>
+|
+<a class=app-header-menu-item href=/blog/coffee/>Coffee</a>
+|
+<a class=app-header-menu-item href=/blog/about/>About</a></nav><p>A blog about cloud, tech and coffee</p><div class=app-header-social><a href=https://github.com/ana-cozma target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-github"><title>GitHub</title><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37.0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44.0 0020 4.77 5.07 5.07.0 0019.91 1S18.73.65 16 2.48a13.38 13.38.0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07.0 005 4.77 5.44 5.44.0 003.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37.0 009 18.13V22"/></svg></a><a href=https://twitter.com/the_cozma target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-twitter"><title>Twitter</title><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg></a><a href=https://www.linkedin.com/in/ana-cozma/ target=_blank rel="noreferrer noopener me"><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-linkedin"><title>LinkedIn</title><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a></div></header><main class=app-container><article class=post><header class=post-header><h1 class=post-title>Kube-bench and Popeye: A Power Duo for AKS Security Compliance</h1><div class=post-meta><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-calendar"><title>calendar</title><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jan 23, 2023</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-clock"><title>clock</title><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>31 min read</div><div><svg viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tag"><title>tag</title><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83.0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><a class=tag href=https://ana-cozma.github.io/blog/tags/kubernetes/>kubernetes</a>
+<a class=tag href=https://ana-cozma.github.io/blog/tags/security/>security</a></div></div></header><div class=post-content><p>In today&rsquo;s world, security is a top priority for any organization or at least it should be. With the rise of cloud computing, the number of security threats has increased exponentially.</p><p>So how do we keep up? Where do we start?</p><p>Microsoft has created a set of security benchmarks to give users a starting point for setting up their security configurations. The Microsoft cloud security benchmark (MCSB) is the successor of Azure Security Benchmark (ASB), which was rebranded in October 2022 (Currently in public preview).</p><p>In this post, I would like to go over the Azure security baseline for Azure Kubernetes Service and give a shoutout to two tools that can aid you in the process of establishing your compliance with the baseline.</p><h2 id=azure-security-baseline-for-aks>Azure Security Baseline for AKS</h2><p>The Azure Security Baseline for <a href=https://learn.microsoft.com/en-us/security/benchmark/azure/baselines/aks-security-baseline>Azure Kubernetes Service</a> (AKS) is a set of recommendations for securing your AKS cluster.</p><p>It is an exhaustive list of various aspects of AKS security and it also provides the corresponding actions to be taken in each case. From the documentation&rsquo;s overview:</p><blockquote><p><em>You can monitor this security baseline and its recommendations using Microsoft Defender for Cloud. Azure Policy definitions will be listed in the Regulatory Compliance section of the Microsoft Defender for Cloud dashboard.</em></p></blockquote><blockquote><p><em>When a section has relevant Azure Policy Definitions, they are listed in this baseline to help you measure compliance to the Azure Security Benchmark controls and recommendations. Some recommendations may require a paid Microsoft Defender plan to enable certain security scenarios.</em></p></blockquote><p>It is based on the CIS Kubernetes Benchmark and the Azure Security Benchmark v1.0.</p><blockquote><p><em>CIS Benchmarks are best practices for the secure configuration of a target system. Available for more than 100 CIS Benchmarks across 25+ vendor product families, CIS Benchmarks are developed through a unique consensus-based process comprised of cybersecurity professionals and subject matter experts around the world. CIS Benchmarks are the only consensus-based, best-practice security configuration guides both developed and accepted by government, business, industry, and academia.</em></p></blockquote><p>For more information on <strong>CIS Benchmark</strong> please check <a href=https://www.cisecurity.org/cis-benchmarks/cis-benchmarks-faq>CIS Benchmark FAQ</a>.</p><p>For more information on the <strong>CIS Benchmark for Kubernetes</strong> please check the <a href=https://www.cisecurity.org/benchmark/kubernetes>kubernetes benchmark</a>.</p><p>In the CIS Benchmark for Kubernetes document, there are instructions for both Master nodes and Worker nodes. But when using AKS we don&rsquo;t have access to the master nodes. In this case, we can make use of the <a href=https://www.cisecurity.org/insights/blog/new-release-cis-azure-kubernetes-service-aks-benchmark>CIS Benchmark document for AKS</a>.</p><p><strong>What could we use to help us check our AKS setup against this benchmark?</strong></p><p>We can start by looking at the Azure Portal and <strong>Microsoft Defender for Cloud</strong>, checking out CIS compliance with <strong>Kube-bench</strong> and any configuration mismatches with <strong>Popeye</strong>. I will go into more detail on the last two tools. But first, let&rsquo;s see what Microsoft Defender for Cloud looks like and what can you get from it.</p><h2 id=microsoft-defender-for-cloud>Microsoft Defender for Cloud</h2><p>As suggested by Microsoft, we can start with Microsoft Defender for Cloud.
+If you go to Azure Portal and search for Microsoft Defender for Cloud, then filter by &ldquo;Assessed Resources&rdquo;, and select your cluster you will see a list of all the cluster details and <em>Recommendations</em> and the <em>Alerts</em> tab as well.</p><p><img src=azureportal.png alt="Microsoft Defender for Cloud"></p><p>Let&rsquo;s take the first recommendation as an example:
+<em>Azure Kubernetes Service clusters should have Defender profile enabled</em></p><p>If you click on it and expand it will give you the following information:
+<img src=detail.png alt=Detail></p><p>You can choose to Exempt it, meaning you have either fixed this issue or you don&rsquo;t want to fix it or Enforce it, meaning you want to enforce this setting by adding it to an Azure Policy definition.</p><p>There is also a nice description of the issue and suggested remediation steps to take.</p><p><img src=kube-bench.png alt=Kube-bench></p><h2 id=kube-bench>Kube-bench</h2><p>The official repository can be found <a href=https://github.com/aquasecurity/kube-bench>here</a> with detailed installation instructions.</p><blockquote><p><em>kube-bench is a tool that checks whether Kubernetes is deployed securely by running the checks documented in the CIS Kubernetes Benchmark.</em></p></blockquote><p>There are multiple ways of running this tool that you can check <a href=https://github.com/aquasecurity/kube-bench/blob/main/docs/running.md>here</a>.</p><h3 id=setting-it-up>Setting it up</h3><p>To test out this tool, I decided to just apply it to my local cluster so the first thing I did was start my <a href=https://minikube.sigs.k8s.io/docs/start/>minikube</a> instance and then I ran the following command:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>&gt; minikube start
+</span></span><span style=display:flex><span>😄  minikube v1.22.0 on Darwin 12.6.2
+</span></span><span style=display:flex><span>✨  Using the hyperkit driver based on existing profile
+</span></span><span style=display:flex><span>👍  Starting control plane node minikube in cluster minikube
+</span></span><span style=display:flex><span>🏃  Updating the running hyperkit <span style=color:#e6db74>&#34;minikube&#34;</span> VM ...
+</span></span><span style=display:flex><span>🎉  minikube 1.28.0 is available! Download it: https://github.com/kubernetes/minikube/releases/tag/v1.28.0
+</span></span><span style=display:flex><span>💡  To disable this notice, run: <span style=color:#e6db74>&#39;minikube config set WantUpdateNotification false&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>🐳  Preparing Kubernetes v1.21.2 on Docker 20.10.6 ...
+</span></span><span style=display:flex><span>🔎  Verifying Kubernetes components...
+</span></span><span style=display:flex><span>    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+</span></span><span style=display:flex><span>🌟  Enabled addons: storage-provisioner, default-storageclass
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>❗  /usr/local/bin/kubectl is version 1.25.2, which may have incompatibilites with Kubernetes 1.21.2.
+</span></span><span style=display:flex><span>    ▪ Want kubectl v1.21.2? Try <span style=color:#e6db74>&#39;minikube kubectl -- get pods -A&#39;</span>
+</span></span><span style=display:flex><span>🏄  Done! kubectl is now configured to use <span style=color:#e6db74>&#34;minikube&#34;</span> cluster and <span style=color:#e6db74>&#34;default&#34;</span> namespace by default
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Download the job.yaml file</span>
+</span></span><span style=display:flex><span>&gt; curl https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml &gt; job.yaml
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&gt; kubectl apply -f job.yaml
+</span></span><span style=display:flex><span>job.batch/kube-bench created
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&gt; kubectl get pods -A                                                                                                                                ✔  at minikube ⎈ 
+</span></span><span style=display:flex><span>NAMESPACE       NAME                                        READY   STATUS              RESTARTS   AGE
+</span></span><span style=display:flex><span>default         kube-bench-t2fgh                            0/1     ContainerCreating   <span style=color:#ae81ff>0</span>          5s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>&gt; kubectl get pods -A                                                                                                                                ✔  at minikube ⎈
+</span></span><span style=display:flex><span>NAMESPACE       NAME                                        READY   STATUS      RESTARTS   AGE
+</span></span><span style=display:flex><span>default         kube-bench-t2fgh                            0/1     Completed   <span style=color:#ae81ff>0</span>          32s
+</span></span></code></pre></div><p>You can run Kube-bench inside a pod, but it will need access to the host&rsquo;s PID namespace to check the running processes, as well as access to some directories on the host where config files and other files are stored.</p><p>The supplied <code>job.yaml</code> file can be applied to run the tests as a job. This was enough for me to run locally to get a feel of what the tool does and how it generates the report.</p><p>Next, after having run the tests, I wanted to get the report. The results of the tests can be found in the logs of the pod which you can get by running:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>&gt; kubectl logs kube-bench-t2fgh
+</span></span></code></pre></div><p>Kube-bench generates a report that looks like the following:</p><details><summary>Click here to expand report</summary><pre tabindex=0><code class=language-log data-lang=log>[INFO] 1 Master Node Security Configuration
+[INFO] 1.1 Master Node Configuration Files
+[PASS] 1.1.1 Ensure that the API server pod specification file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.2 Ensure that the API server pod specification file ownership is set to root:root (Automated)
+[PASS] 1.1.3 Ensure that the controller manager pod specification file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.4 Ensure that the controller manager pod specification file ownership is set to root:root (Automated)
+[PASS] 1.1.5 Ensure that the scheduler pod specification file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.6 Ensure that the scheduler pod specification file ownership is set to root:root (Automated)
+[PASS] 1.1.7 Ensure that the etcd pod specification file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.8 Ensure that the etcd pod specification file ownership is set to root:root (Automated)
+[WARN] 1.1.9 Ensure that the Container Network Interface file permissions are set to 644 or more restrictive (Manual)
+[WARN] 1.1.10 Ensure that the Container Network Interface file ownership is set to root:root (Manual)
+[FAIL] 1.1.11 Ensure that the etcd data directory permissions are set to 700 or more restrictive (Automated)
+[FAIL] 1.1.12 Ensure that the etcd data directory ownership is set to etcd:etcd (Automated)
+[PASS] 1.1.13 Ensure that the admin.conf file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.14 Ensure that the admin.conf file ownership is set to root:root (Automated)
+[PASS] 1.1.15 Ensure that the scheduler.conf file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.16 Ensure that the scheduler.conf file ownership is set to root:root (Automated)
+[PASS] 1.1.17 Ensure that the controller-manager.conf file permissions are set to 644 or more restrictive (Automated)
+[PASS] 1.1.18 Ensure that the controller-manager.conf file ownership is set to root:root (Automated)
+[FAIL] 1.1.19 Ensure that the Kubernetes PKI directory and file ownership is set to root:root (Automated)
+[WARN] 1.1.20 Ensure that the Kubernetes PKI certificate file permissions are set to 644 or more restrictive (Manual)
+[WARN] 1.1.21 Ensure that the Kubernetes PKI key file permissions are set to 600 (Manual)
+[INFO] 1.2 API Server
+[WARN] 1.2.1 Ensure that the --anonymous-auth argument is set to false (Manual)
+[PASS] 1.2.2 Ensure that the --token-auth-file parameter is not set (Automated)
+[PASS] 1.2.3 Ensure that the --kubelet-https argument is set to true (Automated)
+[PASS] 1.2.4 Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate (Automated)
+[FAIL] 1.2.5 Ensure that the --kubelet-certificate-authority argument is set as appropriate (Automated)
+[PASS] 1.2.6 Ensure that the --authorization-mode argument is not set to AlwaysAllow (Automated)
+[PASS] 1.2.7 Ensure that the --authorization-mode argument includes Node (Automated)
+[PASS] 1.2.8 Ensure that the --authorization-mode argument includes RBAC (Automated)
+[WARN] 1.2.9 Ensure that the admission control plugin EventRateLimit is set (Manual)
+[PASS] 1.2.10 Ensure that the admission control plugin AlwaysAdmit is not set (Automated)
+[WARN] 1.2.11 Ensure that the admission control plugin AlwaysPullImages is set (Manual)
+[WARN] 1.2.12 Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used (Manual)
+[PASS] 1.2.13 Ensure that the admission control plugin ServiceAccount is set (Automated)
+[PASS] 1.2.14 Ensure that the admission control plugin NamespaceLifecycle is set (Automated)
+[FAIL] 1.2.15 Ensure that the admission control plugin PodSecurityPolicy is set (Automated)
+[PASS] 1.2.16 Ensure that the admission control plugin NodeRestriction is set (Automated)
+[PASS] 1.2.17 Ensure that the --insecure-bind-address argument is not set (Automated)
+[PASS] 1.2.18 Ensure that the --insecure-port argument is set to 0 (Automated)
+[PASS] 1.2.19 Ensure that the --secure-port argument is not set to 0 (Automated)
+[FAIL] 1.2.20 Ensure that the --profiling argument is set to false (Automated)
+[FAIL] 1.2.21 Ensure that the --audit-log-path argument is set (Automated)
+[FAIL] 1.2.22 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate (Automated)
+[FAIL] 1.2.23 Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate (Automated)
+[FAIL] 1.2.24 Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate (Automated)
+[WARN] 1.2.25 Ensure that the --request-timeout argument is set as appropriate (Manual)
+[PASS] 1.2.26 Ensure that the --service-account-lookup argument is set to true (Automated)
+[PASS] 1.2.27 Ensure that the --service-account-key-file argument is set as appropriate (Automated)
+[PASS] 1.2.28 Ensure that the --etcd-certfile and --etcd-keyfile arguments are set as appropriate (Automated)
+[PASS] 1.2.29 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Automated)
+[PASS] 1.2.30 Ensure that the --client-ca-file argument is set as appropriate (Automated)
+[PASS] 1.2.31 Ensure that the --etcd-cafile argument is set as appropriate (Automated)
+[WARN] 1.2.32 Ensure that the --encryption-provider-config argument is set as appropriate (Manual)
+[WARN] 1.2.33 Ensure that encryption providers are appropriately configured (Manual)
+[WARN] 1.2.34 Ensure that the API Server only makes use of Strong Cryptographic Ciphers (Manual)
+[INFO] 1.3 Controller Manager
+[WARN] 1.3.1 Ensure that the --terminated-pod-gc-threshold argument is set as appropriate (Manual)
+[FAIL] 1.3.2 Ensure that the --profiling argument is set to false (Automated)
+[PASS] 1.3.3 Ensure that the --use-service-account-credentials argument is set to true (Automated)
+[PASS] 1.3.4 Ensure that the --service-account-private-key-file argument is set as appropriate (Automated)
+[PASS] 1.3.5 Ensure that the --root-ca-file argument is set as appropriate (Automated)
+[PASS] 1.3.6 Ensure that the RotateKubeletServerCertificate argument is set to true (Automated)
+[PASS] 1.3.7 Ensure that the --bind-address argument is set to 127.0.0.1 (Automated)
+[INFO] 1.4 Scheduler
+[FAIL] 1.4.1 Ensure that the --profiling argument is set to false (Automated)
+[PASS] 1.4.2 Ensure that the --bind-address argument is set to 127.0.0.1 (Automated)
+
+== Remediations master ==
+1.1.9 Run the below command (based on the file location on your system) on the master node.
+For example,
+chmod 644 &lt;path/to/cni/files&gt;
+
+1.1.10 Run the below command (based on the file location on your system) on the master node.
+For example,
+chown root:root &lt;path/to/cni/files&gt;
+
+1.1.11 On the etcd server node, get the etcd data directory, passed as an argument --data-dir,
+from the below command:
+ps -ef | grep etcd
+Run the below command (based on the etcd data directory found above). For example,
+chmod 700 /var/lib/etcd
+
+1.1.12 On the etcd server node, get the etcd data directory, passed as an argument --data-dir,
+from the below command:
+ps -ef | grep etcd
+Run the below command (based on the etcd data directory found above).
+For example, chown etcd:etcd /var/lib/etcd
+
+1.1.19 Run the below command (based on the file location on your system) on the master node.
+For example,
+chown -R root:root /etc/kubernetes/pki/
+
+1.2.5 Follow the Kubernetes documentation and setup the TLS connection between
+the apiserver and kubelets. Then, edit the API server pod specification file
+/etc/kubernetes/manifests/kube-apiserver.yaml on the master node and set the
+--kubelet-certificate-authority parameter to the path to the cert file for the certificate authority.
+--kubelet-certificate-authority=&lt;ca-string&gt;
+
+1.2.9 Follow the Kubernetes documentation and set the desired limits in a configuration file.
+Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+and set the below parameters.
+--enable-admission-plugins=...,EventRateLimit,...
+--admission-control-config-file=&lt;path/to/configuration/file&gt;
+
+1.2.11 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --enable-admission-plugins parameter to include
+AlwaysPullImages.
+--enable-admission-plugins=...,AlwaysPullImages,...
+
+1.2.12 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --enable-admission-plugins parameter to include
+SecurityContextDeny, unless PodSecurityPolicy is already in place.
+--enable-admission-plugins=...,SecurityContextDeny,...
+
+1.2.15 Follow the documentation and create Pod Security Policy objects as per your environment.
+Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --enable-admission-plugins parameter to a
+value that includes PodSecurityPolicy:
+--enable-admission-plugins=...,PodSecurityPolicy,...
+Then restart the API Server.
+
+1.2.20 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the below parameter.
+--profiling=false
+
+1.2.21 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --audit-log-path parameter to a suitable path and
+file where you would like audit logs to be written, for example:
+--audit-log-path=/var/log/apiserver/audit.log
+
+1.2.22 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --audit-log-maxage parameter to 30 or as an appropriate number of days:
+--audit-log-maxage=30
+
+1.2.23 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --audit-log-maxbackup parameter to 10 or to an appropriate
+value.
+--audit-log-maxbackup=10
+
+1.2.24 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --audit-log-maxsize parameter to an appropriate size in MB.
+For example, to set it as 100 MB:
+--audit-log-maxsize=100
+
+1.2.25 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+and set the below parameter as appropriate and if needed.
+For example,
+--request-timeout=300s
+
+1.2.32 Follow the Kubernetes documentation and configure a EncryptionConfig file.
+Then, edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the --encryption-provider-config parameter to the path of that file: --encryption-provider-config=&lt;/path/to/EncryptionConfig/File&gt;
+
+1.2.33 Follow the Kubernetes documentation and configure a EncryptionConfig file.
+In this file, choose aescbc, kms or secretbox as the encryption provider.
+
+1.2.34 Edit the API server pod specification file /etc/kubernetes/manifests/kube-apiserver.yaml
+on the master node and set the below parameter.
+--tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM
+_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM
+_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM
+_SHA384
+
+1.3.1 Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube-controller-manager.yaml
+on the master node and set the --terminated-pod-gc-threshold to an appropriate threshold,
+for example:
+--terminated-pod-gc-threshold=10
+
+1.3.2 Edit the Controller Manager pod specification file /etc/kubernetes/manifests/kube-controller-manager.yaml
+on the master node and set the below parameter.
+--profiling=false
+
+1.4.1 Edit the Scheduler pod specification file /etc/kubernetes/manifests/kube-scheduler.yaml file
+on the master node and set the below parameter.
+--profiling=false
+
+
+== Summary master ==
+39 checks PASS
+12 checks FAIL
+13 checks WARN
+0 checks INFO
+
+[INFO] 2 Etcd Node Configuration
+[INFO] 2 Etcd Node Configuration Files
+[PASS] 2.1 Ensure that the --cert-file and --key-file arguments are set as appropriate (Automated)
+[PASS] 2.2 Ensure that the --client-cert-auth argument is set to true (Automated)
+[PASS] 2.3 Ensure that the --auto-tls argument is not set to true (Automated)
+[PASS] 2.4 Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate (Automated)
+[PASS] 2.5 Ensure that the --peer-client-cert-auth argument is set to true (Automated)
+[PASS] 2.6 Ensure that the --peer-auto-tls argument is not set to true (Automated)
+[PASS] 2.7 Ensure that a unique Certificate Authority is used for etcd (Manual)
+
+== Summary etcd ==
+7 checks PASS
+0 checks FAIL
+0 checks WARN
+0 checks INFO
+
+[INFO] 3 Control Plane Configuration
+[INFO] 3.1 Authentication and Authorization
+[WARN] 3.1.1 Client certificate authentication should not be used for users (Manual)
+[INFO] 3.2 Logging
+[WARN] 3.2.1 Ensure that a minimal audit policy is created (Manual)
+[WARN] 3.2.2 Ensure that the audit policy covers key security concerns (Manual)
+
+== Remediations controlplane ==
+3.1.1 Alternative mechanisms provided by Kubernetes such as the use of OIDC should be
+implemented in place of client certificates.
+
+3.2.1 Create an audit policy file for your cluster.
+
+3.2.2 Consider modification of the audit policy in use on the cluster to include these items, at a
+minimum.
+
+
+== Summary controlplane ==
+0 checks PASS
+0 checks FAIL
+3 checks WARN
+0 checks INFO
+
+[INFO] 4 Worker Node Security Configuration
+[INFO] 4.1 Worker Node Configuration Files
+[PASS] 4.1.1 Ensure that the kubelet service file permissions are set to 644 or more restrictive (Automated)
+[PASS] 4.1.2 Ensure that the kubelet service file ownership is set to root:root (Automated)
+[PASS] 4.1.3 If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive (Manual)
+[PASS] 4.1.4 If proxy kubeconfig file exists ensure ownership is set to root:root (Manual)
+[PASS] 4.1.5 Ensure that the --kubeconfig kubelet.conf file permissions are set to 644 or more restrictive (Automated)
+[PASS] 4.1.6 Ensure that the --kubeconfig kubelet.conf file ownership is set to root:root (Automated)
+[WARN] 4.1.7 Ensure that the certificate authorities file permissions are set to 644 or more restrictive (Manual)
+[WARN] 4.1.8 Ensure that the client certificate authorities file ownership is set to root:root (Manual)
+[PASS] 4.1.9 Ensure that the kubelet --config configuration file has permissions set to 644 or more restrictive (Automated)
+[PASS] 4.1.10 Ensure that the kubelet --config configuration file ownership is set to root:root (Automated)
+[INFO] 4.2 Kubelet
+[PASS] 4.2.1 Ensure that the anonymous-auth argument is set to false (Automated)
+[PASS] 4.2.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow (Automated)
+[PASS] 4.2.3 Ensure that the --client-ca-file argument is set as appropriate (Automated)
+[PASS] 4.2.4 Ensure that the --read-only-port argument is set to 0 (Manual)
+[PASS] 4.2.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0 (Manual)
+[FAIL] 4.2.6 Ensure that the --protect-kernel-defaults argument is set to true (Automated)
+[PASS] 4.2.7 Ensure that the --make-iptables-util-chains argument is set to true (Automated)
+[WARN] 4.2.8 Ensure that the --hostname-override argument is not set (Manual)
+[WARN] 4.2.9 Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture (Manual)
+[WARN] 4.2.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Manual)
+[PASS] 4.2.11 Ensure that the --rotate-certificates argument is not set to false (Automated)
+[PASS] 4.2.12 Verify that the RotateKubeletServerCertificate argument is set to true (Manual)
+[WARN] 4.2.13 Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers (Manual)
+
+== Remediations node ==
+4.1.7 Run the following command to modify the file permissions of the
+--client-ca-file chmod 644 &lt;filename&gt;
+
+4.1.8 Run the following command to modify the ownership of the --client-ca-file.
+chown root:root &lt;filename&gt;
+
+4.2.6 If using a Kubelet config file, edit the file to set protectKernelDefaults: true.
+If using command line arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and
+set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+--protect-kernel-defaults=true
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+4.2.8 Edit the kubelet service file /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+on each worker node and remove the --hostname-override argument from the
+KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+4.2.9 If using a Kubelet config file, edit the file to set eventRecordQPS: to an appropriate level.
+If using command line arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and
+set the below parameter in KUBELET_SYSTEM_PODS_ARGS variable.
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+4.2.10 If using a Kubelet config file, edit the file to set tlsCertFile to the location
+of the certificate file to use to identify this Kubelet, and tlsPrivateKeyFile
+to the location of the corresponding private key file.
+If using command line arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and
+set the below parameters in KUBELET_CERTIFICATE_ARGS variable.
+--tls-cert-file=&lt;path/to/tls-certificate-file&gt;
+--tls-private-key-file=&lt;path/to/tls-key-file&gt;
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+4.2.13 If using a Kubelet config file, edit the file to set TLSCipherSuites: to
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256
+or to a subset of these values.
+If using executable arguments, edit the kubelet service file
+/etc/systemd/system/kubelet.service.d/10-kubeadm.conf on each worker node and
+set the --tls-cipher-suites parameter as follows, or to a subset of these values.
+--tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256
+Based on your system, restart the kubelet service. For example:
+systemctl daemon-reload
+systemctl restart kubelet.service
+
+
+== Summary node ==
+16 checks PASS
+1 checks FAIL
+6 checks WARN
+0 checks INFO
+
+[INFO] 5 Kubernetes Policies
+[INFO] 5.1 RBAC and Service Accounts
+[WARN] 5.1.1 Ensure that the cluster-admin role is only used where required (Manual)
+[WARN] 5.1.2 Minimize access to secrets (Manual)
+[WARN] 5.1.3 Minimize wildcard use in Roles and ClusterRoles (Manual)
+[WARN] 5.1.4 Minimize access to create pods (Manual)
+[WARN] 5.1.5 Ensure that default service accounts are not actively used. (Manual)
+[WARN] 5.1.6 Ensure that Service Account Tokens are only mounted where necessary (Manual)
+[WARN] 5.1.7 Avoid use of system:masters group (Manual)
+[WARN] 5.1.8 Limit use of the Bind, Impersonate and Escalate permissions in the Kubernetes cluster (Manual)
+[INFO] 5.2 Pod Security Policies
+[WARN] 5.2.1 Minimize the admission of privileged containers (Automated)
+[WARN] 5.2.2 Minimize the admission of containers wishing to share the host process ID namespace (Automated)
+[WARN] 5.2.3 Minimize the admission of containers wishing to share the host IPC namespace (Automated)
+[WARN] 5.2.4 Minimize the admission of containers wishing to share the host network namespace (Automated)
+[WARN] 5.2.5 Minimize the admission of containers with allowPrivilegeEscalation (Automated)
+[WARN] 5.2.6 Minimize the admission of root containers (Automated)
+[WARN] 5.2.7 Minimize the admission of containers with the NET_RAW capability (Automated)
+[WARN] 5.2.8 Minimize the admission of containers with added capabilities (Automated)
+[WARN] 5.2.9 Minimize the admission of containers with capabilities assigned (Manual)
+[INFO] 5.3 Network Policies and CNI
+[WARN] 5.3.1 Ensure that the CNI in use supports Network Policies (Manual)
+[WARN] 5.3.2 Ensure that all Namespaces have Network Policies defined (Manual)
+[INFO] 5.4 Secrets Management
+[WARN] 5.4.1 Prefer using secrets as files over secrets as environment variables (Manual)
+[WARN] 5.4.2 Consider external secret storage (Manual)
+[INFO] 5.5 Extensible Admission Control
+[WARN] 5.5.1 Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)
+[INFO] 5.7 General Policies
+[WARN] 5.7.1 Create administrative boundaries between resources using namespaces (Manual)
+[WARN] 5.7.2 Ensure that the seccomp profile is set to docker/default in your pod definitions (Manual)
+[WARN] 5.7.3 Apply Security Context to Your Pods and Containers (Manual)
+[WARN] 5.7.4 The default namespace should not be used (Manual)
+
+== Remediations policies ==
+5.1.1 Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
+if they need this role or if they could use a role with fewer privileges.
+Where possible, first bind users to a lower privileged role and then remove the
+clusterrolebinding to the cluster-admin role :
+kubectl delete clusterrolebinding [name]
+
+5.1.2 Where possible, remove get, list and watch access to secret objects in the cluster.
+
+5.1.3 Where possible replace any use of wildcards in clusterroles and roles with specific
+objects or actions.
+
+5.1.4 Where possible, remove create access to pod objects in the cluster.
+
+5.1.5 Create explicit service accounts wherever a Kubernetes workload requires specific access
+to the Kubernetes API server.
+Modify the configuration of each default service account to include this value
+automountServiceAccountToken: false
+
+5.1.6 Modify the definition of pods and service accounts which do not need to mount service
+account tokens to disable it.
+
+5.1.7 Remove the system:masters group from all users in the cluster.
+
+5.1.8 Where possible, remove the impersonate, bind and escalate rights from subjects.
+
+5.2.1 Create a PSP as described in the Kubernetes documentation, ensuring that
+the .spec.privileged field is omitted or set to false.
+
+5.2.2 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.hostPID field is omitted or set to false.
+
+5.2.3 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.hostIPC field is omitted or set to false.
+
+5.2.4 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.hostNetwork field is omitted or set to false.
+
+5.2.5 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.allowPrivilegeEscalation field is omitted or set to false.
+
+5.2.6 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.runAsUser.rule is set to either MustRunAsNonRoot or MustRunAs with the range of
+UIDs not including 0.
+
+5.2.7 Create a PSP as described in the Kubernetes documentation, ensuring that the
+.spec.requiredDropCapabilities is set to include either NET_RAW or ALL.
+
+5.2.8 Ensure that allowedCapabilities is not present in PSPs for the cluster unless
+it is set to an empty array.
+
+5.2.9 Review the use of capabilites in applications running on your cluster. Where a namespace
+contains applicaions which do not require any Linux capabities to operate consider adding
+a PSP which forbids the admission of containers which do not drop all capabilities.
+
+5.3.1 If the CNI plugin in use does not support network policies, consideration should be given to
+making use of a different plugin, or finding an alternate mechanism for restricting traffic
+in the Kubernetes cluster.
+
+5.3.2 Follow the documentation and create NetworkPolicy objects as you need them.
+
+5.4.1 if possible, rewrite application code to read secrets from mounted secret files, rather than
+from environment variables.
+
+5.4.2 Refer to the secrets management options offered by your cloud provider or a third-party
+secrets management solution.
+
+5.5.1 Follow the Kubernetes documentation and setup image provenance.
+
+5.7.1 Follow the documentation and create namespaces for objects in your deployment as you need
+them.
+
+5.7.2 Use security context to enable the docker/default seccomp profile in your pod definitions.
+An example is as below:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+
+5.7.3 Follow the Kubernetes documentation and apply security contexts to your pods. For a
+suggested list of security contexts, you may refer to the CIS Security Benchmark for Docker
+Containers.
+
+5.7.4 Ensure that namespaces are created to allow for appropriate segregation of Kubernetes
+resources and that all new resources are created in a specific namespace.
+
+
+== Summary policies ==
+0 checks PASS
+0 checks FAIL
+26 checks WARN
+0 checks INFO
+
+== Summary total ==
+62 checks PASS
+13 checks FAIL
+48 checks WARN
+0 checks INFO
+</code></pre></details><p>This can also be run inside the AKS cluster by following the instructions <a href=https://github.com/aquasecurity/kube-bench/blob/main/docs/running.md#running-in-an-aks-cluster>here</a>.
+As a reminder: Kube-bench cannot be run on AKS master nodes. It can only be run on worker nodes, this is not a limitation of Kube-bench but of AKS as mentioned before.</p><h3 id=the-report-breakdown>The report breakdown</h3><p>From the report above you can see that Kube-bench benchmarks 5 sections of your configurations which are the following:</p><ul><li>Control Plane Components</li><li>Etcd</li><li>Control Plane Configurations</li><li>Worker Nodes</li><li>Policies</li></ul><p>Each section starts by describing which section it targets, the lines having the INFO tag. For example:</p><pre tabindex=0><code class=language-log data-lang=log>[INFO] 5 Kubernetes Policies
+[INFO] 5.1 RBAC and Service Accounts
+</code></pre><p>Then it lists the checks that are performed for that section. Each check gets a PASS, FAIL or WARN status. For example:</p><pre tabindex=0><code class=language-log data-lang=log>[WARN] 5.1.1 Ensure that the cluster-admin role is only used where required (Manual)
+</code></pre><p>And after the tests run, it also suggests remediations for the check that got a WARN/FAIL status. For example:</p><pre tabindex=0><code class=language-log data-lang=log>== Remediations policies ==
+5.1.1 Identify all clusterrolebindings to the cluster-admin role. Check if they are used and
+if they need this role or if they could use a role with fewer privileges.
+Where possible, first bind users to a lower privileged role and then remove the
+clusterrolebinding to the cluster-admin role :
+kubectl delete clusterrolebinding [name]
+</code></pre><p>And at the end you can find a summary of the section:</p><pre tabindex=0><code class=language-log data-lang=log>== Summary policies ==
+0 checks PASS
+0 checks FAIL
+26 checks WARN
+0 checks INFO
+</code></pre><h3 id=potential-use-cases>Potential use cases</h3><p>By running it as a CronJon in your cluster, Kube-bench can help you identify potential security issues in your cluster. It is a great tool to have in your toolbox and it is very easy to use.
+You can configure it to run on a schedule like every week or month and get a report on the security of your cluster, while also taking into account the specific CIS benchmark for your cloud provider. For example, you can set up and run the <a href=https://github.com/aquasecurity/kube-bench/blob/main/job-aks.yaml>job-aks.yaml</a> file to run the tests on an AKS cluster.</p><h2 id=popeye---a-kubernetes-cluster-sanitizer>Popeye - A Kubernetes Cluster Sanitizer</h2><p><img src=popeye_logo.png alt=Popeye></p><p>The repository for the tool can be found <a href=https://github.com/derailed/popeye>here</a>.</p><p>This is a read-only utility that scans live Kubernetes clusters and reports potential issues with deployed resources and configurations.
+What I liked about this tool is that it is very easy to install and use and it achieves what it promises: it reduces the cognitive overload one faces when operating a Kubernetes cluster in the wild.</p><h3 id=setting-it-up-1>Setting it up</h3><p>Popeye can be used standalone using the command line, using a <a href=https://github.com/derailed/popeye/blob/master/spinach/spinach_aks.yml>spinach.yml</a> file or running directly in the cluster as a CronJob.</p><p>In this post, I will be using the command line option on a mac. So to install it I just ran:</p><pre tabindex=0><code class=language-log data-lang=log># Install popeye
+&gt; brew install derailed/popeye/popeye
+# Check popeye version
+&gt; popeye version                                                                                                                   
+ ___     ___ _____   _____                       K          .-&#39;-.
+| _ \___| _ \ __\ \ / / __|                       8     __|      `\
+|  _/ _ \  _/ _| \ V /| _|                         s   `-,-`--._   `\
+|_| \___/_| |___| |_| |___|                       []  .-&gt;&#39;  a     `|-&#39;
+  Biffs`em and Buffs`em!                            `=/ (__/_       /
+                                                      \_,    `    _)
+                                                         `----;  |
+Version:   0.10.1
+Commit:    ae19897a4b5d3738a3e98179207759e45a53a64c
+Date:      2022-06-28T14:46:13Z
+Logs:      /var/folders/vp/l8dlq0gn3x71f3vk82shmzlm0000gn/T/popeye.log
+
+# Connected to my AKS cluster
+# Check the context I am using
+&gt; kubectl config current-context
+# Run popeye
+&gt; popeye
+</code></pre><h3 id=the-report-breakdown-1>The report breakdown</h3><p>The report will be printed to the console and it will look something like the following snippet below. I have removed some of the output for brevity and to give you an idea of the output format and the types of checks that are performed and the results.</p><p>The report is nicely split into sections and each section has a summary of the checks performed and the results. It ends with giving a grade to the cluster.</p><p>The color coding is also very helpful to quickly identify the issues:</p><table><thead><tr><th><strong>Level</strong></th><th style=text-align:center><strong>Icon</strong></th><th style=text-align:center><strong>Jurassic</strong></th><th style=text-align:center><strong>Color</strong></th><th style=text-align:center><strong>Description</strong></th></tr></thead><tbody><tr><td>Ok</td><td style=text-align:center>✅</td><td style=text-align:center>OK</td><td style=text-align:center>Green</td><td style=text-align:center>Happy!</td></tr><tr><td>Info</td><td style=text-align:center>🔊</td><td style=text-align:center>I</td><td style=text-align:center>BlueGreen</td><td style=text-align:center>FYI</td></tr><tr><td>Warn</td><td style=text-align:center>😱</td><td style=text-align:center>W</td><td style=text-align:center>Yellow</td><td style=text-align:center>Potential Issue</td></tr><tr><td>Error</td><td style=text-align:center>💥</td><td style=text-align:center>E</td><td style=text-align:center>Red</td><td style=text-align:center>Action required</td></tr></tbody></table><details><summary>Click here to expand report</summary><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>&gt; popeye                                                                                                                                      
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span> ___     ___ _____   _____                                                      K          .-<span style=color:#e6db74>&#39;-.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>| _ \___| _ \ __\ \ / / __|                                                      8     __|      `\
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>|  _/ _ \  _/ _| \ V /| _|                                                        s   `-,-`--._   `\
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>|_| \___/_| |___| |_| |___|                                                      []  .-&gt;&#39;</span>  a     <span style=color:#e6db74>`</span>|-<span style=color:#e6db74>&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  Biffs`em and Buffs`em!                                                          `=/ (__/_       /
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                                                                                    \_,    `    _)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                                                                                       `----;  |
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>GENERAL [AKS-STAGING]
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · Connectivity...................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · MetricServer...................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>CLUSTER (1 SCANNED)                                                          💥 0 😱 0 🔊 0 ✅ 1 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · Version........................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    ✅ [POP-406] K8s version OK.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>CLUSTERROLES (13 SCANNED)                                                   💥 0 😱 0 🔊 0 ✅ 13 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · azure-policy-webhook-cluster-role..............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-operator-admin............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dashboard-reader...............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-manager-role........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · grafana-agent..................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-operator..................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-operator-external-metrics-reader..........................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong-kong......................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · omsagent-reader................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · policy-agent...................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:coredns-autoscaler......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:metrics-server..........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:prometheus..............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>CLUSTERROLEBINDINGS (19 SCANNED)                                             💥 0 😱 6 🔊 0 ✅ 13 68٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · azure-policy-webhook-cluster-rolebinding.......................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-operator..................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-role-tokenreview-binding..................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:auth-delegator) which does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dashboard-reader-global........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-manager-rolebinding.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · grafana-agent..................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-operator..................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-operator-hpa-controller-external-metrics..................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-operator-system-auth-delegator............................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:auth-delegator) which does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong-kong......................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kubelet-api-admin..............................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:kubelet-api-admin) which does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · metrics-server:system:auth-delegator...........................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:auth-delegator) which does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · omsagentclusterrolebinding.....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · policy-agent...................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · replicaset-controller..........................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:controller:replicaset-controller) which does not
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:coredns-autoscaler......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:discovery...............................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a ClusterRole (system:discovery) which does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:metrics-server..........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · system:prometheus..............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>CONFIGMAPS (43 SCANNED)                                                     💥 0 😱 0 🔊 37 ✅ 6 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/kube-root-ca.crt...................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/operator.dapr.io...................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/webhooks.dapr.io...................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/kube-root-ca.crt.......................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>DAEMONSETS (9 SCANNED)                                                        💥 0 😱 2 🔊 0 ✅ 7 77٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/azure-ip-masq-agent................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/cloud-node-manager.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/cloud-node-manager-windows.........................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/csi-azuredisk-node.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/csi-azuredisk-node-win.............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/csi-azurefile-node.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/csi-azurefile-node-win.............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/kube-proxy.........................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 kube-proxy
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-107] No resource limits defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 kube-proxy-bootstrap
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-107] No resource limits defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · prometheus-agent/grafana-agent.................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 agent
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-106] No resources requests/limits defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>DEPLOYMENTS (29 SCANNED)                                                     💥 0 😱 4 🔊 3 ✅ 22 86٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-dashboard.....................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-dashboard
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-108] Unnamed port 8080.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator......................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-operator
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-108] Unnamed port 6500.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sentry........................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-sentry
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-108] Unnamed port 50001.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sidecar-injector..............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/gatekeeper-audit.............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/gatekeeper-controller........................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-system/keda-operator......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-system/keda-operator-metrics-apiserver....................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong/kong-kong.................................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 ingress-controller
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-106] No resources requests/limits defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 proxy
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-106] No resources requests/limits defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/azure-policy.......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/azure-policy-webhook...............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/coredns............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/coredns-autoscaler.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/konnectivity-agent.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/metrics-server.....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>HORIZONTALPODAUTOSCALERS (4 SCANNED)                                          💥 0 😱 2 🔊 0 ✅ 2 50٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · HPA............................................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-604] If ALL HPAs triggered, 11500m will match/exceed cluster CPU(4931m) capacity by
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       6570m.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-605] If ALL HPAs triggered, 14720Mi will match/exceed cluster memory(1523Mi) capacity by
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       13196Mi.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · my-service/keda-hpa-my-service.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · my-service-2/keda-hpa-my-service-2.............................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-602] Replicas (1/100) at burst will match/exceed cluster CPU(4931m) capacity by 5070m.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-603] Replicas (1/100) at burst will match/exceed cluster memory(1523Mi) capacity by
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       11276Mi.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>INGRESSES (13 SCANNED)                                                      💥 0 😱 0 🔊 0 ✅ 13 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · my-service/my-service..........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong/kong-dapr.................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>NAMESPACES (23 SCANNED)                                                     💥 0 😱 0 🔊 3 ✅ 20 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system....................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default........................................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system..............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-system....................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong...........................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-node-lease................................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-public....................................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system....................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · logstash.......................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · prometheus-agent...............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>NETWORKPOLICIES (2 SCANNED)                                                  💥 0 😱 0 🔊 0 ✅ 2 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/konnectivity-agent.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/tunnelfront........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>NODES (3 SCANNED)                                                             💥 0 😱 2 🔊 0 ✅ 1 33٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · aks-default-***-vmss000000.....................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-710] Memory threshold (80%) reached 83%.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · aks-default-***-vmss000001.....................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-710] Memory threshold (80%) reached 105%.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · aks-default-***-vmss00000a.....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>PERSISTENTVOLUMES (3 SCANNED)                                                💥 0 😱 0 🔊 0 ✅ 3 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · pvc-**.........................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · pvc-**.........................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · pvc-**.........................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>PERSISTENTVOLUMECLAIMS (3 SCANNED)                                           💥 0 😱 0 🔊 0 ✅ 3 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/raft-log-dapr-placement-server-0...................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/raft-log-dapr-placement-server-1...................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/raft-log-dapr-placement-server-2...................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>PODS (72 SCANNED)                                                             💥 1 😱 71 🔊 0 ✅ 0 0٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-dashboard-1-lq942.............................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-301] Connects to API Server? ServiceAccount token is mounted.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-dashboard
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-102] No probes defined.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-108] Unnamed port 8080.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator-1-chmmq..............................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-301] Connects to API Server? ServiceAccount token is mounted.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-operator
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-205] Pod was restarted (17) times.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-105] Liveness probe uses a port#, prefer a named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-105] Readiness probe uses a port#, prefer a named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-108] Unnamed port 6500.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-placement-server-0............................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-301] Connects to API Server? ServiceAccount token is mounted.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-302] Pod could be running as root user. Check SecurityContext/Image.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🐳 dapr-placement-server
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-105] Liveness probe uses a port#, prefer a named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      🔊 [POP-105] Readiness probe uses a port#, prefer a named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>      😱 [POP-306] Container could be running as root user. Check SecurityContext/Image.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>PODDISRUPTIONBUDGETS (8 SCANNED)                                              💥 0 😱 2 🔊 0 ✅ 6 75٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-dashboard-disruption-budget...................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator-disruption-budget....................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-placement-server-disruption-budget............................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sentry-budget.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sidecar-injector-disruption-budget............................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/coredns-pdb........................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-403] Deprecated PodDisruptionBudget API group &#34;policy/v1beta1&#34;. Use &#34;policy/v1&#34; instead.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/konnectivity-agent.................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-403] Deprecated PodDisruptionBudget API group &#34;policy/v1beta1&#34;. Use &#34;policy/v1&#34; instead.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · logstash/logstash-logstash-pdb.................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>PODSECURITYPOLICIES (0 SCANNED)                                              💥 0 😱 0 🔊 0 ✅ 0 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · Nothing to report.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>REPLICASETS (197 SCANNED)                                                  💥 0 😱 0 🔊 0 ✅ 197 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-dashboard-1...................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator-1....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sentry-1......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sidecar-injector-1............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-system/keda-operator-1....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · keda-system/keda-operator-metrics-apiserver-1..................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>ROLES (5 SCANNED)                                                            💥 0 😱 0 🔊 0 ✅ 5 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/secret-reader..........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/gatekeeper-manager-role......................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong/kong-kong.................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/azure-policy-webhook-role..........................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/policy-pod-agent...................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>ROLEBINDINGS (7 SCANNED)                                                      💥 0 😱 2 🔊 0 ✅ 5 71٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/dapr-secret-reader.....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/gatekeeper-manager-rolebinding...............................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kong/kong-kong.................................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/azure-policy-webhook-rolebinding...................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/keda-operator-auth-reader..........................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a Role (kube-system/extension-apiserver-authentication-reader) which
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/metrics-server-auth-reader.........................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1300] References a Role (kube-system/extension-apiserver-authentication-reader) which
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       does not exist.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · kube-system/policy-pod-agent...................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>SECRETS (277 SCANNED)                                                     💥 0 😱 0 🔊 254 ✅ 23 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator-token-tdnb4..........................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sidecar-injector-cert.........................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-trust-bundle..................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>SERVICES (35 SCANNED)                                                        💥 3 😱 17 🔊 7 ✅ 8 42٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-api...........................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-1102] Use of target port #6500 for service port TCP::80. Prefer named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-dashboard.....................................................................😱
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-1102] Use of target port #8080 for service port TCP::8080. Prefer named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    😱 [POP-1109] Only one Pod associated with this endpoint.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-placement-server..............................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-1102] Use of target port #50005 for service port TCP:api:50005. Prefer named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-1102] Use of target port #8201 for service port TCP:raft-node:8201. Prefer named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sentry........................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-1102] Use of target port #50001 for service port TCP::80. Prefer named port.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-sidecar-injector..............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-webhook.......................................................................💥
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    💥 [POP-1106] No target ports match service port TCP::443.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/dapr-eventgrid-func-dapr...............................................................💥
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    💥 [POP-1100] No pods match service selector.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    💥 [POP-1105] No associated endpoints.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/kubernetes.............................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>SERVICEACCOUNTS (38 SCANNED)                                                 💥 0 😱 1 🔊 8 ✅ 29 97٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-operator......................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dashboard-reader...................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/default............................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · default/default................................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · domain-event-emitter/default...................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · domain-start/default...........................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/default......................................................................🔊
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    🔊 [POP-400] Used? Unable to locate resource reference.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · gatekeeper-system/gatekeeper-admin.............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(...)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>STATEFULSETS (2 SCANNED)                                                     💥 0 😱 0 🔊 0 ✅ 2 100٪
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · dapr-system/dapr-placement-server..............................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  · logstash/logstash-logstash.....................................................................✅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>SUMMARY
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>Your cluster score: 82 -- B
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>                                                                                o          .-&#39;</span>-.
+</span></span><span style=display:flex><span>                                                                                 o     __| B    <span style=color:#e6db74>`</span><span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>                                                                                  o   <span style=color:#e6db74>`</span>-,-<span style=color:#e6db74>`</span>--._   <span style=color:#e6db74>`</span><span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span><span style=color:#ae81ff></span>                                                                                 <span style=color:#f92672>[]</span>  .-&gt;<span style=color:#e6db74>&#39;  a     `|-&#39;</span>
+</span></span><span style=display:flex><span>                                                                                  <span style=color:#e6db74>`</span><span style=color:#f92672>=</span>/ <span style=color:#f92672>(</span>__/_       /
+</span></span><span style=display:flex><span>                                                                                    <span style=color:#ae81ff>\_</span>,    <span style=color:#e6db74>`</span>    _<span style=color:#f92672>)</span>
+</span></span><span style=display:flex><span>                                                                                       <span style=color:#e6db74>`</span>----;  |
+</span></span></code></pre></div></details><p>Popeye has a bit of a different scope than Kube-bench in the sense that it scans your cluster for best practices and potential issues. It is not a security scanner like Kube-bench, but it can be used to find potential security issues and for your cluster management.</p><p>It targets the following:</p><ul><li>nodes</li><li>namespaces</li><li>pods</li><li>services</li></ul><p>Its main scope is to find misconfigurations like port mismatches, dead or unused resources etc. You can find the full list of available sanitizers <a href=https://github.com/derailed/popeye#sanitizers>here</a>.</p><h3 id=potential-use-cases-1>Potential use cases</h3><p>Should you choose it to run in a pipeline or as a job you can build on it and make action items to fix based on the errors reported in the report.</p><p>Or this could just be a little helpful tool to run on your cluster to get a quick overview of the state of your cluster. And you can extract any action items for yourself. In this case, you can save the report using the <code>--save</code> flag and attach it to your JIRA Ticket or PR.</p><p>This will save the report in your current working directory.</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>&gt; popeye --save                                                                                                                    
+</span></span><span style=display:flex><span>/var/folders/vp/l8dlq0gn3x71f3vk82shmzlm0000gn/T/popeye/sanitizer_aks-staging_1673563387070145000.txt
+</span></span></code></pre></div><h2 id=summary>Summary</h2><p>I quite enjoyed using both Popeye and Kube-bench. They are both very useful in different ways. Popeye is more of a cluster management tool, while Kube-bench is more of a security scanner. But they can both be used to improve the security of your cluster.</p><p>In the next posts from this series, we will take a deeper look at the reports in more detail, focusing on the errors and seeing what we can do to improve our cluster score.</p><p><em>Until then, thank you for reading and I hope you found this useful. Let me know what other tools you use</em></p></div><div class=post-footer><style>.resp-sharing-button__link,.resp-sharing-button__icon{display:inline-block}.resp-sharing-button__link{text-decoration:none;color:#fff!important;margin:.2em}.resp-sharing-button{border-radius:5px;transition:25ms ease-out;padding:.5em .75em;font-family:Helvetica Neue,Helvetica,Arial,sans-serif}.resp-sharing-button__icon svg{width:1em;height:1em;margin-right:.4em;vertical-align:middle}.resp-sharing-button--small svg{margin:0;vertical-align:middle}.resp-sharing-button__icon{stroke:#fff;fill:none}.resp-sharing-button__icon--solid,.resp-sharing-button__icon--solidcircle{fill:#fff;stroke:none}.resp-sharing-button--twitter{background-color:#55acee}.resp-sharing-button--twitter:hover{background-color:#2795e9}.resp-sharing-button--pinterest{background-color:#bd081c}.resp-sharing-button--pinterest:hover{background-color:#8c0615}.resp-sharing-button--facebook{background-color:#3b5998}.resp-sharing-button--facebook:hover{background-color:#2d4373}.resp-sharing-button--tumblr{background-color:#35465c}.resp-sharing-button--tumblr:hover{background-color:#222d3c}.resp-sharing-button--reddit{background-color:#ff4500}.resp-sharing-button--reddit:hover{background-color:#3a80c1}.resp-sharing-button--google{background-color:#dd4b39}.resp-sharing-button--google:hover{background-color:#c23321}.resp-sharing-button--linkedin{background-color:#0077b5}.resp-sharing-button--linkedin:hover{background-color:#046293}.resp-sharing-button--email{background-color:#777}.resp-sharing-button--email:hover{background-color:#5e5e5e}.resp-sharing-button--xing{background-color:#1a7576}.resp-sharing-button--xing:hover{background-color:#114c4c}.resp-sharing-button--whatsapp{background-color:#25d366}.resp-sharing-button--whatsapp:hover{background-color:#1da851}.resp-sharing-button--hackernews{background-color:#f60}.resp-sharing-button--hackernews:hover,.resp-sharing-button--hackernews:focus{background-color:#fb6200}.resp-sharing-button--vk{background-color:#507299}.resp-sharing-button--vk:hover{background-color:#43648c}.resp-sharing-button--facebook{background-color:#3b5998;border-color:#3b5998}.resp-sharing-button--facebook:hover,.resp-sharing-button--facebook:active{background-color:#2d4373;border-color:#2d4373}.resp-sharing-button--twitter{background-color:#55acee;border-color:#55acee}.resp-sharing-button--twitter:hover,.resp-sharing-button--twitter:active{background-color:#2795e9;border-color:#2795e9}.resp-sharing-button--tumblr{background-color:#35465c;border-color:#35465c}.resp-sharing-button--tumblr:hover,.resp-sharing-button--tumblr:active{background-color:#222d3c;border-color:#222d3c}.resp-sharing-button--email{background-color:#777;border-color:#777}.resp-sharing-button--email:hover,.resp-sharing-button--email:active{background-color:#5e5e5e;border-color:#5e5e5e}.resp-sharing-button--pinterest{background-color:#bd081c;border-color:#bd081c}.resp-sharing-button--pinterest:hover,.resp-sharing-button--pinterest:active{background-color:#8c0615;border-color:#8c0615}.resp-sharing-button--linkedin{background-color:#0077b5;border-color:#0077b5}.resp-sharing-button--linkedin:hover,.resp-sharing-button--linkedin:active{background-color:#046293;border-color:#046293}.resp-sharing-button--reddit{background-color:#ff4500;border-color:#ff4500}.resp-sharing-button--reddit:hover,.resp-sharing-button--reddit:active{background-color:#ff5700;border-color:#ff5700}.resp-sharing-button--xing{background-color:#1a7576;border-color:#1a7576}.resp-sharing-button--xing:hover .resp-sharing-button--xing:active{background-color:#114c4c;border-color:#114c4c}.resp-sharing-button--whatsapp{background-color:#25d366;border-color:#25d366}.resp-sharing-button--whatsapp:hover,.resp-sharing-button--whatsapp:active{background-color:#1da851;border-color:#1da851}.resp-sharing-button--hackernews{background-color:#f60;border-color:#f60}.resp-sharing-button--hackernews:hover .resp-sharing-button--hackernews:active{background-color:#fb6200;border-color:#fb6200}.resp-sharing-button--vk{background-color:#507299;border-color:#507299}.resp-sharing-button--vk:hover .resp-sharing-button--vk:active{background-color:#43648c;border-color:#43648c}.resp-sharing-button--telegram{background-color:#54a9eb}.resp-sharing-button--telegram:hover{background-color:#4b97d1}</style><a class=resp-sharing-button__link href="https://facebook.com/sharer/sharer.php?u=https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/" target=_blank rel=noopener aria-label title=Facebook><div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--small"><div aria-hidden=true class="resp-sharing-button__icon resp-sharing-button__icon--solid"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.77 7.46H14.5v-1.9c0-.9.6-1.1 1-1.1h3V.5h-4.33C10.24.5 9.5 3.44 9.5 5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4z"/></svg></div></div></a><a class=resp-sharing-button__link href="https://twitter.com/intent/tweet/?text=Kube-bench%20and%20Popeye%3a%20A%20Power%20Duo%20for%20AKS%20Security%20Compliance&url=https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/" target=_blank rel=noopener aria-label title=Twitter><div class="resp-sharing-button resp-sharing-button--twitter resp-sharing-button--small"><div aria-hidden=true class="resp-sharing-button__icon resp-sharing-button__icon--solid"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.44 4.83c-.8.37-1.5.38-2.22.02.93-.56.98-.96 1.32-2.02-.88.52-1.86.9-2.9 1.1-.82-.88-2-1.43-3.3-1.43-2.5.0-4.55 2.04-4.55 4.54.0.36.03.7.1 1.04-3.77-.2-7.12-2-9.36-4.75-.4.67-.6 1.45-.6 2.3.0 1.56.8 2.95 2 3.77-.74-.03-1.44-.23-2.05-.57v.06c0 2.2 1.56 4.03 3.64 4.44-.67.2-1.37.2-2.06.08.58 1.8 2.26 3.12 4.25 3.16C5.78 18.1 3.37 18.74 1 18.46c2 1.3 4.4 2.04 6.97 2.04 8.35.0 12.92-6.92 12.92-12.93.0-.2.0-.4-.02-.6.9-.63 1.96-1.22 2.56-2.14z"/></svg></div></div></a><a class=resp-sharing-button__link href="https://www.linkedin.com/shareArticle?mini=true&url=https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/&title=Kube-bench%20and%20Popeye%3a%20A%20Power%20Duo%20for%20AKS%20Security%20Compliance&summary=Kube-bench%20and%20Popeye%3a%20A%20Power%20Duo%20for%20AKS%20Security%20Compliance&https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/" target=_blank rel=noopener aria-label><div class="resp-sharing-button resp-sharing-button--linkedin resp-sharing-button--small"><div aria-hidden=true class="resp-sharing-button__icon resp-sharing-button__icon--solid"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 21.5h-5v-13h5v13zM4 6.5C2.5 6.5 1.5 5.3 1.5 4s1-2.4 2.5-2.4c1.6.0 2.5 1 2.6 2.5.0 1.4-1 2.5-2.6 2.5zm11.5 6c-1 0-2 1-2 2v7h-5v-13h5V10s1.6-1.5 4-1.5c3 0 5 2.2 5 6.3v6.7h-5v-7c0-1-1-2-2-2z"/></svg></div></div></a><a class=resp-sharing-button__link href="https://reddit.com/submit/?url=https://ana-cozma.github.io/blog/posts/k8s-aks-security-helpers/&resubmit=true&title=Kube-bench%20and%20Popeye%3a%20A%20Power%20Duo%20for%20AKS%20Security%20Compliance" target=_blank rel=noopener aria-label title=Reddit><div class="resp-sharing-button resp-sharing-button--reddit resp-sharing-button--small"><div aria-hidden=true class="resp-sharing-button__icon resp-sharing-button__icon--solid"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 11.5c0-1.65-1.35-3-3-3-.96.0-1.86.48-2.42 1.24-1.64-1-3.75-1.64-6.07-1.72.08-1.1.4-3.05 1.52-3.7.72-.4 1.73-.24 3 .5C17.2 6.3 18.46 7.5 20 7.5c1.65.0 3-1.35 3-3s-1.35-3-3-3c-1.38.0-2.54.94-2.88 2.22-1.43-.72-2.64-.8-3.6-.25-1.64.94-1.95 3.47-2 4.55-2.33.08-4.45.7-6.1 1.72C4.86 8.98 3.96 8.5 3 8.5c-1.65.0-3 1.35-3 3 0 1.32.84 2.44 2.05 2.84-.03.22-.05.44-.05.66.0 3.86 4.5 7 10 7s10-3.14 10-7c0-.22-.02-.44-.05-.66 1.2-.4 2.05-1.54 2.05-2.84zM2.3 13.37C1.5 13.07 1 12.35 1 11.5c0-1.1.9-2 2-2 .64.0 1.22.32 1.6.82-1.1.85-1.92 1.9-2.3 3.05zm3.7.13c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9.8 4.8c-1.08.63-2.42.96-3.8.96-1.4.0-2.74-.34-3.8-.95-.24-.13-.32-.44-.2-.68.15-.24.46-.32.7-.18 1.83 1.06 4.76 1.06 6.6.0.23-.13.53-.05.67.2.14.23.06.54-.18.67zm.2-2.8c-1.1.0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm5.7-2.13c-.38-1.16-1.2-2.2-2.3-3.05.38-.5.97-.82 1.6-.82 1.1.0 2 .9 2 2 0 .84-.53 1.57-1.3 1.87z"/></svg></div></div></a><script src=https://giscus.app/client.js data-repo=ana-cozma/blog data-repo-id=586287035 data-category="Post Comments" data-category-id=DIC_kwDOIvGqC84CTeD0 data-mapping=pathname data-reactions-enabled=1 data-emit-metadata=0 data-input-position=bottom data-theme=dark_dimmed data-lang=en data-loading=lazy crossorigin=anonymous async></script></div></article></main></body></html>
