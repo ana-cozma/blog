@@ -1,7 +1,7 @@
 ---
 title: "Book Review: Observability Engineering: Achieving Production Excellence"
-date: 2023-01-11T19:33:00+01:00
-draft: true
+date: 2023-01-24T19:33:00+01:00
+draft: false
 tags: ["coffee-reads", "book-review", "observability"]
 ---
 ![Observability Engineering](observability.png)
