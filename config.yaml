@@ -19,6 +19,7 @@ menu:
     - name: About
       url: /about/
       weight: 4
+pluralizelisttitles: "false"
 params:
   author: Ana Cozma
   description: "A blog about cloud, tech and coffee"
