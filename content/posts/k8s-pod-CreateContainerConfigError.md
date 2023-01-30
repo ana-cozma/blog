@@ -67,7 +67,7 @@ IPs:
   IP:           
 Controlled By:  ReplicaSet/
 Containers:
-  userprovisioning:
+  my-service:
     Container ID:
     Image:          <image-name>
     Image ID:
