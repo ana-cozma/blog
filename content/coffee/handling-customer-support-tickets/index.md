@@ -1,18 +1,18 @@
 ---
 title: "Navigating the Trenches: A Guide to Effortlessly Handling Customer Support Tickets"
-date: 2023-01-17T09:16:45+01:00
-draft: true
+date: 2023-02-09T09:16:45+01:00
+draft: false
 tags: ["coffee-reads", "sre", "on-call"]
 ---
 
 If you work with real data and customers you will have to deal with customer support tickets. This is a very important part of your business and you should take it seriously. In this article, I will give my lessons learned and some tips on how to handle customer support tickets.
 
-### What is a customer support ticket?
-A customer support ticket is a question, a bug report, a feature request or a complaint coming from a customer of your product. It is a communication channel between you and your customer. These complaints are logged in a ticketing tracking system such as JIRA. Generally, the expectation is to handle these tickets in a timely manner and to make sure that your customer is happy.
+## What is a customer support ticket?
+A customer support ticket is a question, a bug report, a feature request or a complaint coming from a customer of your product. It is a communication channel between you and your customer. These complaints are logged in a ticketing tracking system such as JIRA. Generally, the expectation is to handle these tickets promptly and to make sure that your customer is happy.
 
 More often than not, they are given priority and you have to handle them in order of priority. You might even have SLAs tied to them and that means based on the priority you have to handle them within a certain time frame.
 
-### Why is it important?
+## Why is it important?
 
 This is from the customer's point of view, but customer support tickets can also be a distraction to your software development team, adding cognitive load to your team and slowing down the development process. If not handled correctly, they can also be a source of frustration for your team. And even lead to burnout.
 
@@ -93,7 +93,7 @@ Assuming the person is not a 'hero' and is just a hard worker, it will also lead
 
 **Tip** When we see an engineer brilliant at debugging complex systems, the tendency is to give them more tickets to handle because they can 'fix it fast'. Don't. That person is a _precious resource that should be given only the most complex tickets_. Leave the groundwork to the rest of the team. This will also help with the onboarding process and will help the team to grow.
 
-### 3. Don't let customer support people assume the issue in the ticket is the root cause
+### 3. Don't let the customer support people assume the issue in the ticket is the root cause
 
 Alrighty! Customer support people are not technical people. This is not a bad thing, their biggest asset is communicating with the clients. They are the ones that are in direct contact with the clients and they are the ones that know the clients the best. They are the ones that can provide the most valuable information about the issue.
 
