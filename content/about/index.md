@@ -5,6 +5,8 @@ draft: false
 disableShare: true
 disable_comments: true
 ---
+
+### Welcome to my blog!
 My name is Ana, and I am a cloud engineer with a passion for technology. I have several years of experience working with cloud computing platforms such as Azure, Infrastructure as Code, and Observability tools and I enjoy sharing my knowledge and experience with others.
 
 I'll be writing about a wide range of topics related to cloud computing, infrastructure as code, observability, how-tos and lessons learned in my journey and technology in general, including best practices, tips, optimizing cloud costs, and updates on the latest features and services from the major cloud providers or just trends in general. 
@@ -15,9 +17,14 @@ I hope that my blog will be a valuable resource for anyone interested in cloud a
 
 Thanks for visiting!
 
-My 2023 achievements:
-{{< credly 583c3974-6136-4059-97b2-2c7f8ea9bcba >}}
+### Some other things about me
 
-Some nuggets of what I did last year:
+**Proud member of the [Ops community](https://community.ops.io/)**. Give it a look if you're interested in learning more about the Ops community and how you can get involved and contribute to the community.
+
+Tutor for the **Udacity Cloud DevOps Nanodegree program**. I'm a tutor for the Udacity Cloud DevOps Nanodegree program. I'm passionate about helping others learn and grow, and I'm excited to be able to share my knowledge and experience with others. If you're interested in learning more about the program, please feel free to reach out to me.
+
+### Some other nuggets
+
+{{< credly 583c3974-6136-4059-97b2-2c7f8ea9bcba >}}
 {{< credly 78d62649-4988-497d-8fd8-dd96303a64c9 >}} 
 {{< credly ec201771-4b53-4081-bb7e-a4717ae326d4 >}}
