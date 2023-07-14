@@ -1,25 +1,28 @@
 ---
-title: "Dapr Certificate Expiry: Debugging and Fixing"
+title: "Ensuring Seamless Operations: Troubleshooting and Resolving Dapr Certificate Expiry"
 date: 2023-06-19T16:13:45+02:00
 tags: ["dapr", "aks", "kubernetes"]
-draft: true
+draft: false
 ---
 
-Troubleshooting Dapr issues can be quite challenging. While Dapr itself is great, I find the logging part a bit poor with not enough information to help you troubleshoot or understand the cause of issues.
+A CNCF project, the [Distributed Application Runtime (Dapr)](https://dapr.io/) provides APIs that simplify microservice connectivity. Whether your communication pattern is service to service invocation or pub/sub messaging, Dapr helps you write resilient and secured microservices. Essentially, it provides a new way to build microservices by using the reusable blocks implemented as  sidecars.
 
-In the blog post, I want to detail a problem I had with Dapr certificate expiration, how I ended up understanding what the cause was, the symptoms the application was manifesting and how I managed to solve it. I hope this will help others that might be in the same situation.
+While Dapr is great as it is language agnostic and it solves some challenges that come with microservices and distributed systems, such as message broker integration, encryption etc, troubleshooting Dapr issues can be quite challenging. Dapr logs, especially the error messages, can be quite generic and sometimes do not provide enough information for you to understand what is going on.
 
-I want also to highlight how important it is to have proper monitoring in place so I will be touching upon that as well by showing you some lessons learned and what I ended setting up to save me from repeating the same mistakes.
+In this blog post, I want to detail a problem I had with Dapr certificate expiration, how I troubleshoot the root cause, the symptoms the application was manifesting and how I managed to solve it.
+
+I want also to highlight how important it is to have proper monitoring in place so I will be touching upon that as well by showing you some lessons learned and what I ended setting up to save me from repeating the same mistakes in the future.
 
 ## Symptoms
-Application deployment was failing because it could not inject the dapr sidecar. It kept restarting until reaching the 5min defaut timeout and rolledback. Checking the events on the pod I noticed the GET /healthz endpoints for liveness and readiness probes were throwing `connect: connection refused`.
 
-There were no errors in app logs or the dapr sidecar logs. The only thing I noticed was that the dapr sidecar was in `CrashLoopBackOff` state.
+Application deployment was failing because it could not inject the dapr sidecar. It kept restarting until reaching the 5min defaut timeout and rolledback. Checking the events on the pod I noticed the `GET /healthz` endpoints for liveness and readiness probes were throwing `connect: connection refused`.
+
+There were no errors in app logs or in the Dapr sidecar logs. The only thing I noticed was that the dapr sidecar was in `CrashLoopBackOff` state.
 
 ## Troubleshooting
-### _Hint 1_: **Dapr Operator** logs
+### _Step 1_: **Dapr Operator** logs
 
-Since no longs were available on pod or dapr sidecar, I started by checking the logs of the next best thing which was the **Dapr Operator** and I noticed the following error:
+Since no longs were available on pod or Dapr sidecar, I started by checking the logs of the next best thing which was the **Dapr Operator** and I noticed the following error:
 
 ```bash
 {"instance":"dapr-operator-0000000000-abcd","level":"info","msg":"starting webhooks","scope":"dapr.operator","time":"2023-05-25T12:51:13.267369255Z","type":"log","ver":"1.10.4"}
@@ -34,23 +37,21 @@ W0601 02:52:46.530891       1 reflector.go:347] pkg/mod/k8s.io/client-go@v0.26.1
 E0601 02:52:46.531191       1 leaderelection.go:330] error retrieving resource lock dapr-system/webhooks.dapr.io: Get "https://X.X.X.X:443/apis/coordination.k8s.io/v1/namespaces/dapr-system/leases/webhooks.dapr.io": http2: client connection lost
 ```
 
-The injector operates by establishing an admission webhook, which enables Kubernetes (K8s) to interact with it when it intends to deploy a new pod. After the injector responds successfully, the daprd container is added to the pod.
+The Dapr operator works by establishing an admission webhook, which enables Kubernetes (K8s) to interact with it when it intends to deploy a new pod. After a successful response, the daprd container is added to the pod. For more in detail information on how the operator works, check the [Dapr Operator control plane service overview documentation](https://docs.dapr.io/concepts/dapr-services/operator/).
 
-### _Hint 2_: The `http2: client connection lost` part indicated to me that K8s cannot create a successful connection to the webhook.
+### _Step 2_: Investigate the `http2: client connection lost` error
 
-So I started to check one by one:
+The `http2: client connection lost` error indicated to me that K8s could not successfully invoke the admission webhook, so I started to check one by one:
 
-**Network connectivity**: The error message mentioned a potential issue with the client connection being lost. So I verified that the machine running the Dapr process could establish a stable connection to the Kubernetes API server. Checked for any network connectivity issues or firewalls that might be interfering with the communication.
+**Network connectivity**: The error message mentioned a potential issue with the client connection being lost. So I verified that the machine running the Dapr process could establish a stable connection to the Kubernetes API server. Checked for any network connectivity issues or firewalls that might be interfering with the communication. Everything was fine.
 
-**RBAC permissions**: Ensured that the Dapr process or service account has the necessary permissions to access and retrieve resource locks in the dapr-system namespace.
+**API server issues**: I also checked for any issues with the Kubernetes API server itself, such as high load, resource constraints, or misconfiguration. No issues found.
 
-**API server issues**: There might be issues with the Kubernetes API server itself, such as high load, resource constraints, or misconfiguration.
+**Namespace or resource deletion**: I checked that no resources had been deleted in the the dapr-system namespace or the webhooks.dapr.io resource. Everything was still there.
 
-**Namespace or resource deletion**: If the dapr-system namespace or the webhooks.dapr.io resource has been deleted, the error message would indicate a failure to retrieve the lock. Verified that the namespace and the specific resource still exist in the cluster.
+### _Step 3_: **AKS cluster** logs
 
-### _Hint 3_: **AKS cluster** logs
-
-Excluding those mentioned above, I looked started looking into the **AKS cluster logs** and noticed that all the services that were also using Dapr had the following error `authentication handshake failed`. The full log is below:
+So as next step, I started looking into the **AKS cluster logs** and noticed that all the services that were also using Dapr had the following error `authentication handshake failed`. The full log is below:
 
 ```bash	
 {"app_id":"app1","instance":"app1-123456-abc7","level":"info","msg":"sending workload csr request to sentry","scope":"dapr.runtime.grpc.internal","time":"2023-06-19T13:19:53.535345802Z","type":"log","ver":"1.10.4"}
@@ -60,21 +61,23 @@ Excluding those mentioned above, I looked started looking into the **AKS cluster
 {"app_id":"app1","instance":"app1-123456-abc7","level":"error","msg":"error starting server: error from authenticator CreateSignedWorkloadCert: error from sentry SignCertificate: rpc error: code = Unavailable desc = connection error: desc = \"transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate has expired or is not yet valid: current time 2023-06-19T13:19:51Z is after 2023-06-16T12:31:17Z\"","scope":"dapr.runtime.grpc.internal","time":"2023-06-19T13:19:53.535259601Z","type":"log","ver":"1.10.4"}
 ```
 
-So at this point, I knew that it could not establish a connection because it could not authenticate. But my question was which certificate is to blame.
+The errors above were a confirmation that it could not establish a connection because it could not authenticate due to an handshake failure.
 
 
-### _Hint 4_: *Dapr Sentry* logs
+### _Step 4_: *Dapr Sentry* logs
 
-The Dapr Sentry service manages mTLS between services and acts as a certificate authority. It generates mTLS certificates and distributes them to any running sidecars. This allows sidecars to communicate with encrypted, mTLS traffic.
+To dig deeper, I researched how Dapr handles mTLS which pointed me to the Dapr Sentry service.
 
-So I went to check the *Dapr Sentry* logs and it confirmed my suspicion: Dapr root certificate expired.
+> The Dapr Sentry service manages mTLS between services and acts as a certificate authority. It generates mTLS certificates and distributes them to any running sidecars. This allows sidecars to communicate with encrypted, mTLS traffic.
+
+So I went to check the *Dapr Sentry* logs and I finally found the issue: **Dapr root certificate expired**.
 
 ```bash
 2023-06-19 14:49:06.566	
 {"instance":"dapr-sentry-123456-abc7","level":"warning","msg":"Dapr root certificate expiration warning: certificate has expired.","scope":"dapr.sentry","time":"2023-06-19T12:49:06.566339341Z","type":"log","ver":"1.10.4"} 
 ```
 
-You can view the logs of the Dapr Sentry service by running the following command:
+In order to view the logs of the Dapr Sentry service you can run the following command:
 
 ```bash
 kubectl logs --selector=app=dapr-sentry --namespace <NAMESPACE>
@@ -108,7 +111,7 @@ dapr mtls renew-certificate -k --valid-until <days> --restart
 
 3. Redeployed all applications that were using Dapr via our normal Github Actions pipelines.
 
-There was no downtime and the process was quite smooth.
+There was no downtime and the process was quite smooth. Dapr does not renew certificates automatically so depending on your setup you will need to renew them manually or create an intermediary service that does it for you.
 
 ## Next steps
 
@@ -1650,7 +1653,7 @@ Beginning **30 days** prior to mTLS root certificate expiration the Dapr sentry 
 
 First thing is **configure a Loki data source**. 
 
-I already had this done and setting it up might be another blog post. But in a nutshell, Loki is a log aggregation system that integrates with Grafana which allows you to ingest and query log data. So I just made sure I had a Loki data source configured correctly.
+I already had this done and setting it up might be the subject of another blog post. But in a nutshell, Loki is a log aggregation system that integrates with Grafana which allows you to ingest and query log data. So I just made sure I had a Loki data source configured correctly.
 
 Next, I created a **create a log query**.
 
