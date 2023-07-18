@@ -1,6 +1,6 @@
 ---
 title: "Ensuring Seamless Operations: Troubleshooting and Resolving Dapr Certificate Expiry"
-date: 2023-06-19T16:13:45+02:00
+date: 2023-07-18T16:13:45+02:00
 tags: ["dapr", "aks", "kubernetes"]
 draft: false
 ---
