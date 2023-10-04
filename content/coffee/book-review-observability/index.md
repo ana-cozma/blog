@@ -54,4 +54,4 @@ To summarize, the book, I would say, had a lot of good key takeaways to set you 
 
 If you've read the book let me know what you thought about it in the comments below. Or if you have any recommendations for other books on the topic of observability I would love to hear them.
 
-Enjoy your coffee!
+__Enjoy your coffee!__ ☕️
