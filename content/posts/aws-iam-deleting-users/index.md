@@ -9,7 +9,7 @@ This blog post will be a quick one focusing on troubleshooting a less clear erro
 
 Let's assume that in your Terraform configuration you manage IAM users and you want to delete one of them. You'd think that by simply removing the Terraform code and then running `terraform apply` it will delete the users. Which was my case. But then as soon as I ran the command to destroy the resource I ran into an issue:
 
-```hcl
+```console
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   - destroy
 
