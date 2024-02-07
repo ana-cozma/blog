@@ -2,7 +2,7 @@
 title: "KongPlugin CORS: fixing Access-Control-Allow-Origin header missing error"
 date: 2021-12-07T17:55:37+01:00
 draft: false
-tags: ["kong", "kubernetes", "cors", "kong-plugin"]
+tags: ["kong", "kubernetes", "security"]
 ---
 In our current environment we have **Kong** as our Ingress controller in front of our applications.
  

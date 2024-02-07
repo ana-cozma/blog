@@ -2,7 +2,7 @@
 title: "Terraform: Add Group Members as Owners to a Service Principal or Az AD Application"
 date: 2023-04-21T11:18:28+02:00
 draft: false
-tags: ["terraform", "azure", "azure AD"]
+tags: ["terraform", "azure"]
 ---
 
 Currently, there is no option for adding a Group as an Owner to a Service Principal or Azure AD Application.

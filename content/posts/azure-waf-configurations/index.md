@@ -2,7 +2,7 @@
 title: "Azure Application Gateway WAF config vs WAF policy"
 date: 2023-10-31T13:35:49+02:00
 draft: false
-tags: ["azure", "waf", "terraform", "security"]
+tags: ["azure", "terraform", "security"]
 ---
 Recently, I had to enable WAF on our Azure Application Gateway. Because of our infrastructure setup, I wanted to have all the rules from OWASP 3.2 enabled, but I needed to be able to exclude some of our (valid) requests from being blocked as well. To achieve this, I could either try to configure the WAF Config section on our Gateway or create a WAF policy. 
 

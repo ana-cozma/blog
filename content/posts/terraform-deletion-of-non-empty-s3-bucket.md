@@ -2,7 +2,7 @@
 title: "Terraform: Handling the deletion of a non-empty AWS S3 Bucket"
 date: 2022-05-25T12:39:03+01:00
 draft: false
-tags: ["terraform", "aws", "s3", "iac"]
+tags: ["terraform", "aws"]
 ---
 This article applies to **Terraform v1.1.4**
 

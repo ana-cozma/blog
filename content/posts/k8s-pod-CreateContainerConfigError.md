@@ -2,7 +2,7 @@
 title: "Troubleshooting and Resolving a Pod Stuck in 'CreateContainerConfigError' in Kubernetes"
 date: 2023-01-30T22:38:04+01:00
 draft: false
-tags: ["kubernetes", "troubleshooting"]
+tags: ["kubernetes"]
 ---
 The other day I was making changes to my helm charts and, after deploying my application, I noticed that one of my pods was stuck in a `CreateContainerConfigError` state. This is a pretty tricky error because it doesn't give you any details on what the underlying issue could be.
 
