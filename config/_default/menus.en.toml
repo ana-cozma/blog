@@ -1,0 +1,29 @@
+[[main]]
+none = "none"
+
+[[main]]
+name = "Posts"
+pageRef = "posts"
+identifier = "aAy79r74Az"
+weight = 9999
+
+[[main]]
+name = "About"
+pageRef = "about"
+identifier = "iBnSg774Tv"
+weight = 9999
+
+[[main]]
+name = "Tags"
+pageRef = "tags"
+identifier = "LoLI6MLuqf"
+weight = 9999
+
+[[main]]
+name = "Reads"
+pageRef = "reads"
+identifier = "3TaCHTMxvz"
+weight = 9999
+
+[[footer]]
+none = "none"

@@ -1,0 +1,61 @@
+baseURL: 'https://ana-cozma.github.io'
+languageCode: en-us
+title: Cloudy Caffeine with Ana
+theme: blowfish
+enableRobotsTXT: true
+paginate: 10
+googleAnalytics: G-PD4F67ZWJD
+menu:
+  main:
+    - name: Home
+      url: /
+      weight: 1
+    - name: Tags
+      url: /tags/
+      weight: 2
+    - name: About
+      url: /about/
+      weight: 3
+pluralizelisttitles: "false"
+params:
+  author: Ana Cozma
+  description: "A blog about cloud, tech and coffee"
+  menu_item_separator: ' | '
+  style:
+    darkestColor: '#242930'
+    darkColor: '#353b43'
+    lightColor: '#afbac4'
+    lightestColor: '#ffffff'
+    # primaryColor: '#8565ad'
+  shareButtons:
+    size: small
+    networks:
+      - facebook
+      - twitter
+      #- email
+      - reddit
+      - linkedin
+    icon: solid
+    buttonMargin: 0.2em
+  giscus:
+    repo: ana-cozma/blog
+    repoID: 586287035
+    category: Post Comments
+    categoryID: DIC_kwDOIvGqC84CTeD0
+    mapping: pathname
+    reactionsEnabled: '1'
+    emitMetadata: '0'
+    inputPosition: bottom
+    theme: dark_dimmed
+    lang: en
+    loading: lazy
+  social:
+    - icon: github
+      name: GitHub
+      url: 'https://github.com/ana-cozma'
+    - icon: twitter
+      name: Twitter
+      url: 'https://twitter.com/the_cozma'
+    - icon: linkedin
+      name: LinkedIn
+      url: 'https://www.linkedin.com/in/ana-cozma/'
