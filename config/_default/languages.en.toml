@@ -1,0 +1,17 @@
+languageCode = "en"
+languageName = "English"
+weight = 1
+title = "Cloudy Caffeine with Ana"
+
+[params]
+displayName = "EN"
+isoCode = "en"
+rtl = false
+dateFormat = "2 January 2006"
+
+[author]
+name = "Ana Cozma"
+image = "avatar.jpg"
+links = [ { github = "https://github.com/ana-cozma" }, { linkedin = "https://www.linkedin.com/in/ana-cozma/" }, { x-twitter = "https://x.com/the_cozma" } ]
+headline = false
+bio = "I’m a Cloud Engineer with a knack for CI/CD pipelines, Docker, Kubernetes, Azure and AWS with a focus on IaC, monitoring, and security. Let’s connect!"

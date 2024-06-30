@@ -1,7 +1,7 @@
-baseURL: 'https://ana-cozma.github.io/blog'
+baseURL: 'https://ana-cozma.github.io'
 languageCode: en-us
 title: Cloudy Caffeine with Ana
-theme: m10c
+theme: blowfish
 enableRobotsTXT: true
 paginate: 10
 googleAnalytics: G-PD4F67ZWJD
@@ -13,12 +13,9 @@ menu:
     - name: Tags
       url: /tags/
       weight: 2
-    - name: Coffee
-      url: /coffee/
-      weight: 3
     - name: About
       url: /about/
-      weight: 4
+      weight: 3
 pluralizelisttitles: "false"
 params:
   author: Ana Cozma
