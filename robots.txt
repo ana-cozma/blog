@@ -1,1 +1,3 @@
 User-agent: *
+Allow: /
+Sitemap: https://ana-cozma.github.io/sitemap.xml
