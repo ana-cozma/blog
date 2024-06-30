@@ -90,7 +90,8 @@ showTableOfContents = false
 cardView = "cardView"
 
 [term]
-showHero = false
+showHero = true
+heroStyle = "background"
 showBreadcrumbs = false
 showViews = false
 showLikes = false

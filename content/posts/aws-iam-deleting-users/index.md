@@ -84,7 +84,7 @@ By enabling it, it will allow Terraform to delete the user even if it has non-Te
 
 While it does seem a convenient option, be very careful with this argument, as it can lead to accidental deletion of users that are still active. So I would advise you to use it only if you are sure that the user is not active (maybe have a check in place that runs before the destruction of the resources), that you are aware of the security implications and lastly check the access of the team members that can run the Terraform code.
 
-### Conclusion
+## Conclusion
 
 If Terraform cannot delete your AWS IAM users remember to check the user's Security credentials and look for any active access keys or MFA devices. If they are active, deactivate and remove them. How you handle it in your Terraform code is up to you, but remember to be careful with the `force_destroy` option.
 
