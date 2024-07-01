@@ -13,5 +13,5 @@ dateFormat = "2 January 2006"
 name = "Ana Cozma"
 image = "avatar.jpg"
 links = [ { github = "https://github.com/ana-cozma" }, { linkedin = "https://www.linkedin.com/in/ana-cozma/" }, { x-twitter = "https://x.com/the_cozma" } ]
-headline = false
+headline = "Infrastructure as Code | All things DevOps | But first, coffee."
 bio = "I’m a Cloud Engineer with a knack for CI/CD pipelines, Docker, Kubernetes, Azure and AWS with a focus on IaC, monitoring, and security. Let’s connect!"
