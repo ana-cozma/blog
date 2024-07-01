@@ -9,9 +9,9 @@ disable_comments: true
 ### The blog
 My name is Ana, and I am a cloud engineer with a passion for technology. I have several years of experience working with cloud computing platforms such as Azure, Infrastructure as Code, and Observability tools and I enjoy sharing my knowledge and experience with others.
 
-In the **_Posts_** section: you'll find me writing about a wide range of topics related to cloud computing, infrastructure as code, observability, how-tos and lessons learned in my journey and technology in general, including best practices, tips or optimizing cloud costs.
+In the **_Cloud Brews_** section: you'll find me writing about a wide range of topics related to cloud computing, infrastructure as code, observability, how-tos and lessons learned in my journey and technology in general, including best practices, tips or optimizing cloud costs.
 
-In the **_Reads_** section: you'll find quick easy reads over a cup of coffee on my personal experiences, lessons learned in the software industry, and technical books I'm reading or any other topics that I find interesting.
+In the **_Coffee Shots_** section: you'll find quick easy reads over a cup of coffee on my personal experiences, lessons learned in the software industry, and technical books I'm reading or any other topics that I find interesting.
 
 In the **_Tags_** section: you'll be able to filter the articles based on a specific topic you're interested in.
 
