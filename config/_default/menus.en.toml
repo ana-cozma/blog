@@ -2,7 +2,7 @@
 none = "none"
 
 [[main]]
-name = "Posts"
+name = "Cloud Brews"
 pageRef = "posts"
 identifier = "aAy79r74Az"
 weight = 9999
@@ -20,7 +20,7 @@ identifier = "LoLI6MLuqf"
 weight = 9999
 
 [[main]]
-name = "Reads"
+name = "Coffee Shots"
 pageRef = "reads"
 identifier = "3TaCHTMxvz"
 weight = 9999
