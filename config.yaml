@@ -46,7 +46,7 @@ params:
     reactionsEnabled: '1'
     emitMetadata: '0'
     inputPosition: bottom
-    theme: dark_dimmed
+    theme: light
     lang: en
     loading: lazy
   social:

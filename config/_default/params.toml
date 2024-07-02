@@ -58,6 +58,7 @@ showAuthorsBadges = ""
 showWordCount = false
 showZenMode = "showZenMode"
 showRelatedContent = false
+showComments = true
 
 [list]
 showHero = true
