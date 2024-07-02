@@ -5,7 +5,7 @@ draft: false
 tags: ["coffee-reads", "book-review", "observability"]
 ---
 
-![Observability Engineering](observability.png)
+![Observability Engineering](image.png)
 
 For the first book review in what I will call my *coffee reads* section of the blog I will be reviewing the book [Observability Engineering: Achieving Production Excellence](https://www.oreilly.com/library/view/observability-engineering/9781492050046/).
 
@@ -22,6 +22,7 @@ I bought this book for Kindle and went into it with basic knowledge about observ
 My expectations from the title and the summary of the book were to learn about the different tools and practices in the realm of observability in addition to getting a better understanding of the theory behind observability and how it can be implemented in an organization.
 
 ### Highlights
+
 The introduction to observability section was a very high-level overview of what observability is and how it differs from monitoring.
 
 I appreciated the change in mentality the book triggered in me around the concept of observability versus the concept of monitoring. The book did a very good job of explaining how observability has a more holistic approach than monitoring. I could relate to the examples given in the book about how monitoring is a reactive approach to problems and how observability is a proactive approach to problems and all the frustrations that came from relying solely on monitoring such as excessive alerting, false positives, and the lack of context, excessive use of dashboards, and the lack of understanding of the system.
@@ -40,17 +41,17 @@ Onto the things that I think could be revisited in the next versions of the book
 
 There is a bit of repetition in the book, especially in the first part, where the same concepts are explained in different ways and the same idea, the difference between observability and monitoring, is reiterated several times. Definitely, this could be reduced in the next version of the book.
 
-The book also does not go into implementation details on how observability can _actually_ be adopted. It reiterates the challenges but is a bit succinct on how to address them. And the same for implementing observability practices in your system.
+The book also does not go into implementation details on how observability can *actually* be adopted. It reiterates the challenges but is a bit succinct on how to address them. And the same for implementing observability practices in your system.
 
 Some sections had a lot of detailed code snippets which were hard to read. I skimmed over them to get the gist while in other sections I would have liked to see more code snippets to help me understand the concepts better.
 
-The case study section was too high level for my liking. I would've loved to read more about the _challenges_ they faced and _how_ they addressed them, rather than mention team collaboration as being the success metric in adopting observability. Go into detail about the tools they used and how they used them. What their lessons learned were.
+The case study section was too high level for my liking. I would've loved to read more about the *challenges* they faced and *how* they addressed them, rather than mention team collaboration as being the success metric in adopting observability. Go into detail about the tools they used and how they used them. What their lessons learned were.
 
 So because of this, the book felt a bit unbalanced at times in my opinion.
 
 ## Summary
 
-To summarize, the book, I would say, had a lot of good key takeaways to set you on the path to adopting observability practices either in your day-to-day work or team level or maybe even organizational level, but it did fell short in some areas. Nevertheless, it was a good read and I would recommend it to anyone interested in learning more about observability. 
+To summarize, the book, I would say, had a lot of good key takeaways to set you on the path to adopting observability practices either in your day-to-day work or team level or maybe even organizational level, but it did fell short in some areas. Nevertheless, it was a good read and I would recommend it to anyone interested in learning more about observability.
 
 If you've read the book let me know what you thought about it in the comments below. Or if you have any recommendations for other books on the topic of observability I would love to hear them.
 
