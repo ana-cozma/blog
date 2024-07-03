@@ -4,7 +4,7 @@ date: 2024-07-01T22:17:25+02:00
 draft: false
 tags: ["coffee-reads","book-review"]
 ---
-![The Unicorn Project](cover.png)
+![The Unicorn Project](image.png)
 
 ## The Unicorn Project
 
