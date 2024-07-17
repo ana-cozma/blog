@@ -59,6 +59,7 @@ showWordCount = false
 showZenMode = "showZenMode"
 showRelatedContent = false
 showComments = true
+sharingLinks = [ "linkedin", "twitter", "reddit", "facebook", "email"]
 
 [list]
 showHero = true
