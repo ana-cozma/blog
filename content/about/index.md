@@ -32,3 +32,8 @@ Whether you're a developer, an IT professional, or just someone who is curious a
 Tutor for the **Udacity Cloud DevOps Nanodegree program**. I was a tutor for the Udacity Cloud DevOps Nanodegree program. I'm passionate about helping others learn and grow, and I'm excited to be able to share my knowledge and experience with others.
 
 Thanks for visiting!
+
+
+*Attributions:*
+
+<a href="https://www.flaticon.com/free-icons/thunder" title="thunder icons">Thunder icons created by Freepik - Flaticon</a>
