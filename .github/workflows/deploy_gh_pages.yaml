@@ -4,7 +4,7 @@ name: Deploy Hugo site via GitHub Pages
 on:
   push:
     branches:
-      - main # Set a branch to deploy
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -40,7 +40,11 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build
-        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}"   
+        run: hugo --minify --baseURL "${{ steps.pages.outputs.base_url }}"
+
+      - name: Create IndexNow API key
+        if: ${{ github.event_name == 'push' }}
+        run: echo ${{ secrets.INDEXNOW_KEY }} > ./public/${{ secrets.INDEXNOW_KEY }}.txt
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -53,8 +57,22 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' }}
     needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Push changes to IndexNow
+        uses: bojieyang/indexnow-action@v2
+        with:
+          sitemap-location: "${{ steps.deployment.outputs.page_url }}sitemap.xml"
+          since: 1
+          since-unit: "day"
+          key: ${{ secrets.INDEXNOW_KEY }}
+
+      - name: Delete artifact
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: github-pages  
