@@ -64,7 +64,7 @@ Having checked that, I saw that the user had an Access key that was still active
 
 ## How can this happen?
 
-The user's access token and the MFA device configured to his account were not managed by Terraform, meaning they were created manually. So Terraform was not aware of them and could not delete them. And this was preventing the deletion of the user.
+The user's access token and the MFA device configured to his account were not managed by Terraform, meaning they were created manually. So Terraform was not aware of them and could not delete them. This was preventing the deletion of the user.
 
 How this could come to be is if the user was created through Terraform code, but all the other configurations were done manually after the user was created: adding an access key, adding an MFA device, etc. So then you end up with a mix of Terraform-managed and non-Terraform-managed resources.
 
