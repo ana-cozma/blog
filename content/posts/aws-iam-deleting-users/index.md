@@ -1,7 +1,7 @@
 ---
 title: "AWS: Handling 'Cannot delete entity, must remove tokens from principal first' error"
+description: "Troubleshoot and resolve this common issue when deleting AWS IAM users using Terraform."
 date: 2024-02-07T13:32:57+01:00
-description: "Struggling with the 'Cannot delete entity, must remove tokens from principal first' error in Terraform? Learn how to troubleshoot and resolve this common issue when deleting AWS IAM users. This quick guide covers why the error occurs, how to identify active tokens, and best practices for managing IAM users with Terraform."
 draft: false
 tags: ["aws", "iam", "terraform"]
 ---

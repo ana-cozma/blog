@@ -1,7 +1,7 @@
 ---
 title: "Azure Application Gateway WAF config vs WAF policy"
+description: "Azure Application Gateway WAF configuration vs WAF policy. Check the key differences and best practices to help you secure your web applications effectively."
 date: 2023-10-31T13:35:49+02:00
-description: "Confused about whether to use Azure Application Gateway WAF configuration or WAF policy? This blog breaks down the key differences, use cases, and best practices to help you secure your web applications effectively with Azure's Web Application Firewall."
 draft: false
 tags: ["azure", "terraform", "security"]
 ---

@@ -8,13 +8,13 @@ In today's world, security is a top priority for any organization or at least it
 
 So how do we keep up? Where do we start?
 
-Microsoft has created a set of security benchmarks to give users a starting point for setting up their security configurations. The Microsoft cloud security benchmark (MCSB) is the successor of Azure Security Benchmark (ASB), which was rebranded in October 2022 (Currently in public preview). 
+Microsoft has created a set of security benchmarks to give users a starting point for setting up their security configurations. The Microsoft cloud security benchmark (MCSB) is the successor of Azure Security Benchmark (ASB), which was rebranded in October 2022 (Currently in public preview).
 
 In this post, I would like to go over the Azure security baseline for Azure Kubernetes Service and give a shoutout to two tools that can aid you in the process of establishing your compliance with the baseline.
 
 ## Azure Security Baseline for AKS
 
-The Azure Security Baseline for [Azure Kubernetes Service](https://learn.microsoft.com/en-us/security/benchmark/azure/baselines/aks-security-baseline) (AKS) is a set of recommendations for securing your AKS cluster. 
+The Azure Security Baseline for [Azure Kubernetes Service](https://learn.microsoft.com/en-us/security/benchmark/azure/baselines/aks-security-baseline) (AKS) is a set of recommendations for securing your AKS cluster.
 
 It is an exhaustive list of various aspects of AKS security and it also provides the corresponding actions to be taken in each case. From the documentation's overview:
 
@@ -28,7 +28,7 @@ It is based on the CIS Kubernetes Benchmark and the Azure Security Benchmark v1.
 
 For more information on **CIS Benchmark** please check [CIS Benchmark FAQ](https://www.cisecurity.org/cis-benchmarks/cis-benchmarks-faq).
 
-For more information on the **CIS Benchmark for Kubernetes** please check the [kubernetes benchmark](https://www.cisecurity.org/benchmark/kubernetes). 
+For more information on the **CIS Benchmark for Kubernetes** please check the [kubernetes benchmark](https://www.cisecurity.org/benchmark/kubernetes).
 
 In the CIS Benchmark for Kubernetes document, there are instructions for both Master nodes and Worker nodes. But when using AKS we don't have access to the master nodes. In this case, we can make use of the [CIS Benchmark document for AKS](https://www.cisecurity.org/insights/blog/new-release-cis-azure-kubernetes-service-aks-benchmark).
 
