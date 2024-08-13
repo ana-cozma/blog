@@ -56,7 +56,7 @@ jobs:
         with:
           sitemap-location: "${{ steps.pages.outputs.base_url }}/sitemap.xml"
           since: 3
-          since-unit: "years"
+          since-unit: "year"
           key: ${{ secrets.INDEXNOW_KEY }}
 
   # Deployment job
