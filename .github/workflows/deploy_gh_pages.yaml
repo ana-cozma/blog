@@ -76,3 +76,8 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: github-pages  
+
+      - uses: robingenz/action-google-indexing@v1.0.0
+        with:
+          siteUrl: 'coffeewithana.cloud'
+          gcpServiceAccountKey: ${{ secrets.SA_KEY }}
