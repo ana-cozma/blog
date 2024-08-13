@@ -17,7 +17,7 @@ The book, consisting of around 400 pages, is split into 3 main parts: the first 
 
 ## Thoughts on the book
 
-I bought this book for Kindle and went into it with basic knowledge about observability and having used the Honeycomb product a bit for work. 
+I bought this book for Kindle and went into it with basic knowledge about observability and having used the Honeycomb product a bit for work.
 
 My expectations from the title and the summary of the book were to learn about the different tools and practices in the realm of observability in addition to getting a better understanding of the theory behind observability and how it can be implemented in an organization.
 
@@ -29,7 +29,7 @@ I appreciated the change in mentality the book triggered in me around the concep
 
 The book did not focus solely on the tools that Honeycomb uses and tried to offer an overview of what the market offers for this goal it did a good job at explaining the different tools and practices in terms of observability. The section on _*tracing*_ explains how tracing works and how it can be used to understand the flow of a request through a system in great detail with examples and code snippets. I found it easy to follow and because of this, I understood what benefits it brings and how it can be used. The section on _*metrics*_ was also very useful in explaining how you can understand the health of a system by using metrics and how you can also make use of them to detect any system anomalies.
 
-The main key takeaway from this chapter was that by using observability concepts and tooling correctly you don't need to rely on software engineers to understand the system, you can use the data, that is available for everyone, to understand the system and make decisions based on the data. 
+The main key takeaway from this chapter was that by using observability concepts and tooling correctly you don't need to rely on software engineers to understand the system, you can use the data, that is available for everyone, to understand the system and make decisions based on the data.
 
 The book also emphasizes the organizational and cultural changes that need to be made to implement observability in an organization. As an example, the book explains how the concept of blameless postmortems is a good way to encourage a culture of learning and how it can be used to improve the system. How if you rely on data then all the software engineers with a hero complex will have to adapt. I had a lot of respect for the authors for being honest about these points and for highlighting the day-to-day realities of implementing observability in an organization.
 

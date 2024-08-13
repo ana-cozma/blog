@@ -2,3 +2,62 @@
     max-width: 250px !important;
     font-size: 0.95em;
 }
+
+:root {
+    --color-tip: #57ab5a;
+    --color-warn: #f08453;
+    --color-caution: #ee293d;
+    --color-note: #5cc1dd;
+}
+
+
+.alert {
+    border-left: .25em solid;
+    padding: 0 16px;
+    border-radius: 8px;
+}
+
+.alert-tip {
+    border-left-color: var(--color-tip)
+}
+
+.alert-caution {
+    border-left-color: var(--color-caution)
+}
+
+.alert-note {
+    border-left-color: var(--color-note)
+}
+
+.alert-warn {
+    border-left-color: var(--color-warn)
+}
+
+.alert-title {
+    display: flex;
+    align-items: center;
+    color: inherit;
+}
+
+.alert-tip .alert-title {
+    color: var(--color-tip)
+}
+
+.alert-caution .alert-title {
+    color: var(--color-caution)
+}
+
+.alert-note .alert-title {
+    color: var(--color-note)
+}
+
+.alert-warn .alert-title {
+    color: var(--color-warn)
+}
+
+.alert-title > svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    color: inherit;
+}
