@@ -1,28 +1,29 @@
 ---
 title: "Ensuring Seamless Operations: Troubleshooting and Resolving Dapr Certificate Expiry"
 date: 2023-07-18T16:13:45+02:00
+description: "Discover how to troubleshoot and resolve Dapr certificate expiration warnings. Learn the steps to regenerate and renew Dapr certificates to maintain the security and reliability of your distributed applications."
 tags: ["dapr", "kubernetes"]
 draft: false
 ---
-
-A CNCF project, the [Distributed Application Runtime (Dapr)](https://dapr.io/) provides APIs that simplify microservice connectivity. Whether your communication pattern is service to service invocation or pub/sub messaging, Dapr helps you write resilient and secured microservices. Essentially, it provides a new way to build microservices by using the reusable blocks implemented as  sidecars.
+A CNCF project, the [Distributed Application Runtime (Dapr)](https://dapr.io/) provides APIs that simplify microservice connectivity. Whether your communication pattern is a service-to-service invocation or pub/sub messaging, Dapr helps you write resilient and secured microservices. Essentially, it provides a new way to build microservices by using the reusable blocks implemented as sidecars.
 
 While Dapr is great as it is language agnostic and it solves some challenges that come with microservices and distributed systems, such as message broker integration, encryption etc, troubleshooting Dapr issues can be quite challenging. Dapr logs, especially the error messages, can be quite generic and sometimes do not provide enough information for you to understand what is going on.
 
 In this blog post, I want to detail a problem I had with Dapr certificate expiration, how I troubleshoot the root cause, the symptoms the application was manifesting and how I managed to solve it.
 
-I want also to highlight how important it is to have proper monitoring in place so I will be touching upon that as well by showing you some lessons learned and what I ended setting up to save me from repeating the same mistakes in the future.
+I want also to highlight how important it is to have proper monitoring in place so I will be touching upon that as well by showing you some lessons learned and what I ended up setting up to save me from repeating the same mistakes in the future.
 
 ## Symptoms
 
-Application deployment was failing because it could not inject the dapr sidecar. It kept restarting until reaching the 5min defaut timeout and rolledback. Checking the events on the pod I noticed the `GET /healthz` endpoints for liveness and readiness probes were throwing `connect: connection refused`.
+Application deployment was failing because it could not inject the dapr sidecar. It kept restarting until reaching the 5min default timeout and rolled back. Checking the events on the pod I noticed the `GET /healthz` endpoints for liveness and readiness probes were throwing `connect: connection refused`.
 
-There were no errors in app logs or in the Dapr sidecar logs. The only thing I noticed was that the dapr sidecar was in `CrashLoopBackOff` state.
+There were no errors in the application logs or the Dapr sidecar logs. The only thing I noticed was that the dapr sidecar was in a `CrashLoopBackOff` state.
 
 ## Troubleshooting
-### _Step 1_: **Dapr Operator** logs
 
-Since no longs were available on pod or Dapr sidecar, I started by checking the logs of the next best thing which was the **Dapr Operator** and I noticed the following error:
+### Step 1: Dapr Operator logs
+
+Since no longs were available on the pod or Dapr sidecar, I started by checking the logs of the next best thing which was the **Dapr Operator** and I noticed the following error:
 
 ```bash
 {"instance":"dapr-operator-0000000000-abcd","level":"info","msg":"starting webhooks","scope":"dapr.operator","time":"2023-05-25T12:51:13.267369255Z","type":"log","ver":"1.10.4"}
@@ -37,34 +38,33 @@ W0601 02:52:46.530891       1 reflector.go:347] pkg/mod/k8s.io/client-go@v0.26.1
 E0601 02:52:46.531191       1 leaderelection.go:330] error retrieving resource lock dapr-system/webhooks.dapr.io: Get "https://X.X.X.X:443/apis/coordination.k8s.io/v1/namespaces/dapr-system/leases/webhooks.dapr.io": http2: client connection lost
 ```
 
-The Dapr operator works by establishing an admission webhook, which enables Kubernetes (K8s) to interact with it when it intends to deploy a new pod. After a successful response, the daprd container is added to the pod. For more in detail information on how the operator works, check the [Dapr Operator control plane service overview documentation](https://docs.dapr.io/concepts/dapr-services/operator/).
+The Dapr operator works by establishing an admission webhook, which enables Kubernetes (K8s) to interact with it when it intends to deploy a new pod. After a successful response, the daprd container is added to the pod. For more detailed information on how the operator works, check the [Dapr Operator Control plane service overview documentation](https://docs.dapr.io/concepts/dapr-services/operator/).
 
-### _Step 2_: Investigate the `http2: client connection lost` error
+### Step 2: Investigate the `http2: client connection lost` error
 
 The `http2: client connection lost` error indicated to me that K8s could not successfully invoke the admission webhook, so I started to check one by one:
 
 **Network connectivity**: The error message mentioned a potential issue with the client connection being lost. So I verified that the machine running the Dapr process could establish a stable connection to the Kubernetes API server. Checked for any network connectivity issues or firewalls that might be interfering with the communication. Everything was fine.
 
-**API server issues**: I also checked for any issues with the Kubernetes API server itself, such as high load, resource constraints, or misconfiguration. No issues found.
+**API server issues**: I also checked for any issues with the Kubernetes API server itself, such as high load, resource constraints, or misconfiguration. No issues were found.
 
-**Namespace or resource deletion**: I checked that no resources had been deleted in the the dapr-system namespace or the webhooks.dapr.io resource. Everything was still there.
+**Namespace or resource deletion**: I checked that no resources had been deleted in the dapr-system namespace or the webhooks.dapr.io resource. Everything was still there.
 
-### _Step 3_: **AKS cluster** logs
+### Step 3: AKS cluster logs
 
-So as next step, I started looking into the **AKS cluster logs** and noticed that all the services that were also using Dapr had the following error `authentication handshake failed`. The full log is below:
+So as the next step, I started looking into the **AKS cluster logs** and noticed that all the services that were also using Dapr had the following error `authentication handshake failed`. The full log is below:
 
 ```bash	
 {"app_id":"app1","instance":"app1-123456-abc7","level":"info","msg":"sending workload csr request to sentry","scope":"dapr.runtime.grpc.internal","time":"2023-06-19T13:19:53.535345802Z","type":"log","ver":"1.10.4"}
-2023-06-19 15:19:53.535	
+2023-06-19 15:19:53.535
 {"app_id":"app1","instance":"app1-123456-abc7","level":"info","msg":"renewing certificate: requesting new cert and restarting gRPC server","scope":"dapr.runtime.grpc.internal","time":"2023-06-19T13:19:53.535329702Z","type":"log","ver":"1.10.4"}
-2023-06-19 15:19:53.535	
+2023-06-19 15:19:53.535
 {"app_id":"app1","instance":"app1-123456-abc7","level":"error","msg":"error starting server: error from authenticator CreateSignedWorkloadCert: error from sentry SignCertificate: rpc error: code = Unavailable desc = connection error: desc = \"transport: authentication handshake failed: tls: failed to verify certificate: x509: certificate has expired or is not yet valid: current time 2023-06-19T13:19:51Z is after 2023-06-16T12:31:17Z\"","scope":"dapr.runtime.grpc.internal","time":"2023-06-19T13:19:53.535259601Z","type":"log","ver":"1.10.4"}
 ```
 
-The errors above were a confirmation that it could not establish a connection because it could not authenticate due to an handshake failure.
+The errors above were a confirmation that it could not establish a connection because it could not authenticate due to a handshake failure.
 
-
-### _Step 4_: *Dapr Sentry* logs
+### Step 4: Dapr Sentry logs
 
 To dig deeper, I researched how Dapr handles mTLS which pointed me to the Dapr Sentry service.
 
@@ -73,7 +73,7 @@ To dig deeper, I researched how Dapr handles mTLS which pointed me to the Dapr S
 So I went to check the *Dapr Sentry* logs and I finally found the issue: **Dapr root certificate expired**.
 
 ```bash
-2023-06-19 14:49:06.566	
+2023-06-19 14:49:06.566 
 {"instance":"dapr-sentry-123456-abc7","level":"warning","msg":"Dapr root certificate expiration warning: certificate has expired.","scope":"dapr.sentry","time":"2023-06-19T12:49:06.566339341Z","type":"log","ver":"1.10.4"} 
 ```
 
@@ -87,29 +87,33 @@ kubectl logs --selector=app=dapr-sentry --namespace <NAMESPACE>
 
 By default, the certificate expires after 365 days. You can change the expiration time by setting the `--cert-chain-expiration` flag when you start the Dapr Sentry service. The value is in days.
 
-With Dapr, you can encrypt communication between applications using self-signed one valid for 1 year so it was time to renew the certificate.
+With Dapr, you can encrypt communication between applications using a self-signed one valid for 1 year so it was time to renew the certificate.
 
 To renew the certificate, I followed the recommended steps to root and issuer certificate upgrade using CLI. You can find the steps [here](https://docs.dapr.io/operations/security/mtls/#root-and-issuer-certificate-upgrade-using-cli-recommended).
 
 1. Generated brand new root and issuer certificates, signed by a newly generated private root key by running the following command:
 
-```bash
-dapr mtls renew-certificate -k --valid-until <days> --restart
-```
-```bash                                                                              
-⌛  Starting certificate rotation
-ℹ️  generating fresh certificates
-ℹ️  Updating certifcates in your Kubernetes cluster
-ℹ️  Dapr control plane version 1.10.4 detected in namespace dapr-system
-✅  Certificate rotation is successful! Your new certicate is valid through Wed, 18 Jun 2025 13:37:30 UTC
-ℹ️  Restarting deploy/dapr-sentry..
-ℹ️  Restarting deploy/dapr-operator..
-ℹ️  Restarting statefulsets/dapr-placement-server..
-✅  All control plane services have restarted successfully!
-```
-2. Restarted one of the applications in kubernetes to see if the changes worked successfully. And it did!
+    ```bash
+    dapr mtls renew-certificate -k --valid-until <days> --restart
+    ```
 
-3. Redeployed all applications that were using Dapr via our normal Github Actions pipelines.
+    Output of the console:
+
+    ```bash
+    ⌛  Starting certificate rotation
+    ℹ️  generating fresh certificates
+    ℹ️  Updating certifcates in your Kubernetes cluster
+    ℹ️  Dapr control plane version 1.10.4 detected in namespace dapr-system
+    ✅  Certificate rotation is successful! Your new certicate is valid through Wed, 18 Jun 2025 13:37:30 UTC
+    ℹ️  Restarting deploy/dapr-sentry..
+    ℹ️  Restarting deploy/dapr-operator..
+    ℹ️  Restarting statefulsets/dapr-placement-server..
+    ✅  All control plane services have restarted successfully!
+    ```
+
+1. Restarted one of the applications in Kubernetes to see if the changes worked successfully. And it did!
+
+1. Redeployed all applications that were using Dapr via our normal Github Actions pipelines.
 
 There was no downtime and the process was quite smooth. Dapr does not renew certificates automatically so depending on your setup you will need to renew them manually or create an intermediary service that does it for you.
 
@@ -117,7 +121,7 @@ There was no downtime and the process was quite smooth. Dapr does not renew cert
 
 ### Lesson learned no 1: Have an overview of your Dapr services
 
-I had no overview of the Dapr system which caused me a lot of time in trying to get to the root cause. So first thing I did was to create a **nice dashboard** where we can have an overview of our Dapr services and their certificates. I started from the official one from [Grafana](https://github.com/dapr/dapr/tree/master/grafana) for this. But the dashboard is a bit outdated so I had some issues with the queries, so I did some changes and you can find the JSON of the dashboard below if it helps anyone.
+I had no overview of the Dapr system which caused me a lot of time in trying to get to the root cause. So first thing I did was to create a **nice dashboard** where we can have an overview of our Dapr services and their certificates. I started from the official one from [Grafana](https://github.com/dapr/dapr/tree/master/grafana) for this. But the dashboard is a bit outdated so I had some issues with the queries, so I made some changes and you can find the JSON of the dashboard below if it helps anyone.
 
 {{< details "Click here to expand report" >}}
 ```json
@@ -1631,33 +1635,33 @@ I had no overview of the Dapr system which caused me a lot of time in trying to 
 
 {{< /details >}}
 
-I added some variables for the Prometheus datasource name and the cluster name. You can change the refresh rate of the dashboard and the time range.
+I added some variables for the Prometheus data source name and the cluster name. You can change the refresh rate of the dashboard and the time range.
 
-And the output creates a dashboard that something like below:
+The output creates a dashboard that is something like below:
 
 ![Dapr Dashboard](image.png)
 
 Each section of the dashboard has a very nice info box that will tell you what the section shows and how to interpret the data.
 
-Ideally I think a good practice is not to overload yourself by creating tons of dashboards that you will not look at, maintain or forget about.
+Ideally, I think a good practice is not to overload yourself by creating tons of dashboards that you will not look at, maintain or forget about.
 
-In this case, it's quite useful to have one because in the event of an incident or a problem, this will save you hours of troubleshooting and will give you a good overview of the system and what is failing. If you look at the outputs of the board itself you'll see that it logs: CSR Failures, Server TLS certificate issuance failures, etc.
+In this case, it's quite useful to have one because, in the event of an incident or a problem, this will save you hours of troubleshooting and will give you a good overview of the system and what is failing. If you look at the outputs of the board itself you'll see that it logs: CSR Failures, Server TLS certificate issuance failures, etc.
 
-## Lesson Learned no 2: Make sure you are aware before expiration
+### Lesson Learned no 2: Make sure you are aware before the expiration date
 
-Beginning **30 days** prior to mTLS root certificate expiration the Dapr sentry service will emit hourly warning level logs indicating that the root certificate is about to expire. You can use these logs to set up alerts to notify you when the certificate is about to expire.
+Beginning **30 days** before mTLS root certificate expiration the Dapr sentry service will emit hourly warning level logs indicating that the root certificate is about to expire. You can use these logs to set up alerts to notify you when the certificate is about to expire.
 
 ```log
 "Dapr root certificate expiration warning: certificate expires in 2 days and 15 hours"
 ```
 
-First thing is **configure a Loki data source**. 
+The first thing is to **configure a Loki data source**.
 
 I already had this done and setting it up might be the subject of another blog post. But in a nutshell, Loki is a log aggregation system that integrates with Grafana which allows you to ingest and query log data. So I just made sure I had a Loki data source configured correctly.
 
 Next, I created a **create a log query**.
 
-In the Explore view of Grafana, selecting the Loki data source, I wrote a log query that retrieves the logs I want to use for the alert. The query you build might differ but it should match the logs produced by the kubectl logs command for dapr-sentry. 
+In the Explore view of Grafana, selecting the Loki data source, I wrote a log query that retrieves the logs I want to use for the alert. The query you build might differ but it should match the logs produced by the kubectl logs command for dapr-sentry.
 
 For example:
 
@@ -1669,21 +1673,21 @@ Adjust the query based on the specific log lines or patterns you want to target.
 
 A good rule of thumb is to **test the log query**.
 
-After executing the query, you should see the warnings in the log entries. 
+After executing the query, you should see the warnings in the log entries.
 
-**Tip:**
+{{<tip>}}
+If no logs are returned, check that the query is correct, that the data source is set up correctly, and that the logs are being ingested by Loki.
+{{</tip>}}
 
-> If no logs are returned, check that the query is correct, that the data source is set up correctly, and that the logs are being ingested by Loki.
-
-Since all was good in my case, I proceeded to **add this query from the Explore page to my previously created dashboard** so I can see the logs in the dashboard itself as well. So I created a new panel with the logs and a nice description of what the logs mean for anyone reading it.
+Since all was good in my case, I proceeded to **add this query from the Explore page to my previously created dashboard** so I could see the logs in the dashboard itself as well. So I created a new panel with the logs and a nice description of what the logs mean for anyone reading it.
 
 ![Alt text](image-1.png)
 
-And lastly, I **create an alert rule**. 
+And lastly, I **create an alert rule**.
 
-In the Alerting section in Grafana I went to "Create Rule" to define an alert rule. I configured the alert based on the previous query and I defined the conditions that trigger the alert based on the log query results. For example, you can set a condition like "Count() is above 0" to trigger the alert when there is at least one log entry matching the query. Or you can customize it based on your needs.
+In the Alerting section in Grafana, I went to "Create Rule" to define an alert rule. I configured the alert based on the previous query and I defined the conditions that trigger the alert based on the log query results. For example, you can set a condition like "Count() is above 0" to trigger the alert when there is at least one log entry matching the query. Or you can customize it based on your needs.
 
-Here the implementation of the alert might differ based on what tooling you use, which channel you want to be alerted on (slack, email etc).
+Here the implementation of the alert might differ based on what tooling you use, and which channel you want to be alerted on (slack, email etc).
 
 Hope this gave an insight into how you can troubleshoot and monitor Dapr in your environments.
 
