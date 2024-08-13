@@ -51,6 +51,14 @@ jobs:
         with:
           path: ./public
 
+      - name: Push changes to IndexNow
+        uses: bojieyang/indexnow-action@v2
+        with:
+          sitemap-location: "${{ steps.pages.outputs.base_url }}/sitemap.xml"
+          since: 3
+          since-unit: "years"
+          key: ${{ secrets.INDEXNOW_KEY }}
+
   # Deployment job
   deploy:
     environment:
