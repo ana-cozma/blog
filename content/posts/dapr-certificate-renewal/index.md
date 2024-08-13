@@ -1,6 +1,6 @@
 ---
 title: "Ensuring Seamless Operations: Troubleshooting and Resolving Dapr Certificate Expiry"
-description: "Troubleshoot and resolve Dapr certificate expiration. Learn the steps to renew Dapr certificate and monitor your system."
+description: "How to troubleshoot and resolve Dapr certificate expiration and add Grafana monitoring and Loki logs for a better system overview."
 date: 2023-07-18T16:13:45+02:00
 tags: ["dapr", "kubernetes"]
 draft: false
