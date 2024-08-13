@@ -1,13 +1,14 @@
 ---
 title: "AWS: Handling 'Cannot delete entity, must remove tokens from principal first' error"
 date: 2024-02-07T13:32:57+01:00
+description: "Struggling with the 'Cannot delete entity, must remove tokens from principal first' error in Terraform? Learn how to troubleshoot and resolve this common issue when deleting AWS IAM users. This quick guide covers why the error occurs, how to identify active tokens, and best practices for managing IAM users with Terraform."
 draft: false
 tags: ["aws", "iam", "terraform"]
 ---
 
 This blog post will be a quick one focusing on troubleshooting a less clear error, _'Cannot delete entity, must remove tokens from principal first'_, that Terraform can throw when you try to delete IAM users from AWS.
 
-Let's assume that in your Terraform configuration you manage IAM users and you want to delete one of them. You'd think that by simply removing the Terraform code and then running `terraform apply` it will delete the users. Which was my case. But then as soon as I ran the command to destroy the resource I ran into an issue:
+Let's assume that in your Terraform configuration, you manage IAM users and you want to delete one of them. You'd think that by simply removing the Terraform code and then running `terraform apply` it will delete the users. Which was my case. But then as soon as I ran the command to destroy the resource I ran into an issue:
 
 ```console
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
@@ -47,14 +48,15 @@ Do you want to perform these actions?
 aws_iam_user.little_tester: Destroying... [id=little_tester]
 ╷
 │ Error: deleting IAM User (little_tester): DeleteConflict: Cannot delete entity, must remove tokens from principal first.
-│ 	status code: 409, request id: ...
+│  status code: 409, request id: ...
 │
 ```
+
 ## So what does this mean?
 
 The error `Cannot delete entity, must remove tokens from principal first.` says that the user has some tokens that need to be removed before the user itself can be deleted. The tokens it refers to can be active access keys or registered MFA devices.
 
-The decision to prevent the deletion of a user if any of these active tokens are associated to it makes sense since from a security perspective because it aims to prevent accidental deletion of users that are still active. 
+The decision to prevent the deletion of a user if any of these active tokens are associated with it makes sense from a security perspective because it aims to prevent the accidental deletion of users that are still active.
 
 A way to confirm if this is the case is to go to AWS Console and check the user's Security credentials. There you should see any active access keys or registered MFA devices.
 
@@ -70,19 +72,19 @@ Something to think about for future cases, this could also happen if you create 
 
 ## What can you do?
 
-First option, is to add the access key and MFA device to the Terraform configuration so then creation and removal of the users will be part of a complete flow fully managed by Terraform.
+The first option is to add the access key and MFA device to the Terraform configuration so the creation and removal of the users will be part of a complete flow fully managed by Terraform.
 
-Second option is to simply manually go to AWS Console > IAM, and check the user's Security credentials and MFA devices. For the active ones simply deactivate them and remove them manually. Then simply run to your configuration and run `terraform apply` again.
+The second option is to simply manually go to AWS Console > IAM, and check the user's Security credentials and MFA devices. For the active ones simply deactivate them and remove them manually. Then simply run to your configuration and run `terraform apply` again.
 
-And lastly, you can add the [`force_destroy` argument](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user#force_destroy) to the `aws_iam_user` resource in your Terraform configuration. 
+And lastly, you can add the [`force_destroy` argument](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user#force_destroy) to the `aws_iam_user` resource in your Terraform configuration.
 
 > _force_destroy - (Optional, default false) When destroying this user, destroy even if it has non-Terraform-managed IAM access keys, login profile or MFA devices. Without force_destroy a user with non-Terraform-managed access keys and login profile will fail to be destroyed._
 
-By enabling it, it will allow Terraform to delete the user even if it has non-Terraform-managed access keys and MFA devices. 
+By enabling it, it will allow Terraform to delete the user even if it has non-Terraform-managed access keys and MFA devices.
 
 **Warning!**
 
-While it does seem a convenient option, be very careful with this argument, as it can lead to accidental deletion of users that are still active. So I would advise you to use it only if you are sure that the user is not active (maybe have a check in place that runs before the destruction of the resources), that you are aware of the security implications and lastly check the access of the team members that can run the Terraform code.
+While it does seem a convenient option, be very careful with this argument, as it can lead to the accidental deletion of users that are still active. So I would advise you to use it only if you are sure that the user is not active (maybe have a check in place that runs before the destruction of the resources), that you are aware of the security implications and lastly check the access of the team members that can run the Terraform code.
 
 ## Conclusion
 
