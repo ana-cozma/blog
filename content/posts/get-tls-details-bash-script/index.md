@@ -152,4 +152,6 @@ Explanation of the output parameters:
 
 Now that you have your data you can simply compare the TLS version, Cipher Suite or Elliptic Curve against the deprecated or supported versions and take appropriate actions to update them.
 
+Lastly, I have used curl on Mac, but you can use the same on Windows by installing it from [here](https://curl.se/windows/).
+
 *Thank you for reading and I hope this helps someone out there with your use case!*
