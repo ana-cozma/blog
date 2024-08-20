@@ -2,7 +2,7 @@
 title: "How to Check TLS Configuration of URLs with Curl and Bash Script"
 description: "How to Check TLS Configuration of URLs with Curl and Bash Script"
 date: 2024-08-19T15:24:34+02:00
-draft: true
+draft: false
 tags: ["azure", "security"]
 ---
 If you are working in an Azure environment and you are using Azure Availability Tests you might run into the following Health Advisory event:
@@ -41,7 +41,7 @@ But what if you have more than one URL you need to check? Running this command m
 
 ## Using Curl and a Bash script to loop through a list of URLs
 
-We can take this a step further and create a script that will accept a list of URLs, loop through them and output the information we need. And you can achieve this by following the steps below:
+We can take this a step further and create a script that will accept a list of URLs, loop through them and output the information we need. You can achieve this by following the steps below:
 
 **1. Create the file:**
 
