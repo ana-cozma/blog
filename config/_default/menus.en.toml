@@ -2,28 +2,28 @@
 none = "none"
 
 [[main]]
-name = "Cloud Brews"
+name = "Tech"
 pageRef = "posts"
 identifier = "aAy79r74Az"
-weight = 9999
+weight = 9992
 
 [[main]]
 name = "About"
 pageRef = "about"
 identifier = "iBnSg774Tv"
-weight = 9999
+weight = 9991
 
 [[main]]
 name = "Tags"
 pageRef = "tags"
 identifier = "LoLI6MLuqf"
-weight = 9999
+weight = 9994
 
 [[main]]
-name = "Coffee Shots"
+name = "Coffee Reads"
 pageRef = "reads"
 identifier = "3TaCHTMxvz"
-weight = 9999
+weight = 9993
 
 [[footer]]
 none = "none"
