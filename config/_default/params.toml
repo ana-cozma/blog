@@ -30,7 +30,7 @@ showScrollToTop = true
 
 [homepage]
 layout = "background"
-homepageImage = "image.jpg"
+homepageImage = ""
 showRecent = true
 showRecentItems = 3
 showMoreLink = false

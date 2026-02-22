@@ -3,7 +3,8 @@ languageCode: en-us
 title: Cloudy Caffeine with Ana
 theme: blowfish
 enableRobotsTXT: true
-paginate: 10
+pagination:
+  pagerSize: 10
 menu:
   main:
     - name: Home
