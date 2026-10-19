@@ -17,20 +17,6 @@ In the **_Tags_** section: you'll be able to filter the articles based on a spec
 
 Whether you're a developer, an IT professional, or just someone who is curious about the tech, I hope you'll find something of interest here. If you have any questions, or feedback or just want to get in touch, please feel free to reach out to me. 
 
-### Certifications
-
-{{< figure src="microsoft-certified-expert-badge.svg" alt="Microsoft Certified: DevOps Engineer Expert" caption="Microsoft Certified: DevOps Engineer Expert" href="https://learn.microsoft.com/api/credentials/share/en-us/AnaCozma-0643/126026059C229878?sharingId=814D1A253C523A1F" class="grid-w33" >}}
-
-{{< figure src="microsoft-certified-associate-badge.svg" alt="Microsoft Certified: Azure Administrator Associate" caption="Microsoft Certified: Azure Administrator Associate" href="https://learn.microsoft.com/api/credentials/share/en-us/AnaCozma-0643/CA2505FC1569AF8C?sharingId=814D1A253C523A1F" class="grid-w33" >}}
-
-{{< figure src="microsoft-certified-fundamentals-badge.svg" alt="Microsoft Certified: Azure Fundamentals" caption="Microsoft Certified: Azure Fundamentals" href="https://learn.microsoft.com/api/credentials/share/en-us/AnaCozma-0643/A3E70112E404E649?sharingId=814D1A253C523A1F" class="grid-w33" >}}
-
-### Other projects
-
-**You can find me on [Ops community](https://community.ops.io/)** or Dev.to as well. Give it a look if you're interested in learning more about the Ops community and how you can get involved and contribute to the community.
-
-Tutor for the **Udacity Cloud DevOps Nanodegree program**. I was a tutor for the Udacity Cloud DevOps Nanodegree program. I'm passionate about helping others learn and grow, and I'm excited to be able to share my knowledge and experience with others.
-
 Thanks for visiting!
 
 
